@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AspNetCoreArchTemplate.Data.Models\AnimalHealthcare.Data.Models.csproj" />
+    <ProjectReference Include="..\AspNetCoreArchTemplate.Data\AnimalHealthcare.Data.csproj" />
+    <ProjectReference Include="..\AspNetCoreArchTemplate.GCommon\AnimalHealthcare.GCommon.csproj" />
+    <ProjectReference Include="..\AspNetCoreArchTemplate.Services.AutoMapping\AnimalHealthcare.AutoMapping.csproj" />
+    <ProjectReference Include="..\AspNetCoreArchTemplate.Services.Common\AnimalHealthcare.Services.Common.csproj" />
+    <ProjectReference Include="..\AspNetCoreArchTemplate.Web.ViewModels\AnimalHealthcare.Web.ViewModels.csproj" />
+  </ItemGroup>
+
+</Project>
