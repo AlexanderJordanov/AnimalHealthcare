@@ -23,4 +23,8 @@
     <ProjectReference Include="..\AspNetCoreArchTemplate.Web.ViewModels\AnimalHealthcare.Web.ViewModels.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
 </Project>
