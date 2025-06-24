@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AspNetCoreArchTemplate.GCommon\AnimalHealthcare.GCommon.csproj" />
-    <ProjectReference Include="..\AspNetCoreArchTemplate.Services.Common\AnimalHealthcare.Services.Common.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.GCommon\AnimalHealthcare.GCommon.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.Services.Common\AnimalHealthcare.Services.Common.csproj" />
   </ItemGroup>
 
 </Project>

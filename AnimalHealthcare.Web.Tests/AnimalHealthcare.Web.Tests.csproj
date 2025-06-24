@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AspNetCoreArchTemplate.Web\AnimalHealthcare.Web.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.Web\AnimalHealthcare.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AspNetCoreArchTemplate.Data.Models\AnimalHealthcare.Data.Models.csproj" />
-    <ProjectReference Include="..\AspNetCoreArchTemplate.GCommon\AnimalHealthcare.GCommon.csproj" />
-    <ProjectReference Include="..\AspNetCoreArchTemplate.Services.AutoMapping\AnimalHealthcare.AutoMapping.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.Data.Models\AnimalHealthcare.Data.Models.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.GCommon\AnimalHealthcare.GCommon.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.Services.AutoMapping\AnimalHealthcare.AutoMapping.csproj" />
   </ItemGroup>
 
 </Project>

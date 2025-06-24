@@ -18,8 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AspNetCoreArchTemplate.Data\AnimalHealthcare.Data.csproj" />
-    <ProjectReference Include="..\AspNetCoreArchTemplate.Services.Core\AnimalHealthcare.Services.Core.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.Data\AnimalHealthcare.Data.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.Services.Core\AnimalHealthcare.Services.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

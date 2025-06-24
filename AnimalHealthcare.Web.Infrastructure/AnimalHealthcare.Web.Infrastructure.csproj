@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AspNetCoreArchTemplate.GCommon\AnimalHealthcare.GCommon.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.GCommon\AnimalHealthcare.GCommon.csproj" />
   </ItemGroup>
 
 </Project>

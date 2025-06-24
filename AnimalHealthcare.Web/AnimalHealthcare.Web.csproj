@@ -16,11 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AspNetCoreArchTemplate.Data\AnimalHealthcare.Data.csproj" />
-    <ProjectReference Include="..\AspNetCoreArchTemplate.GCommon\AnimalHealthcare.GCommon.csproj" />
-    <ProjectReference Include="..\AspNetCoreArchTemplate.Services.Core\AnimalHealthcare.Services.Core.csproj" />
-    <ProjectReference Include="..\AspNetCoreArchTemplate.Web.Infrastructure\AnimalHealthcare.Web.Infrastructure.csproj" />
-    <ProjectReference Include="..\AspNetCoreArchTemplate.Web.ViewModels\AnimalHealthcare.Web.ViewModels.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.Data\AnimalHealthcare.Data.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.GCommon\AnimalHealthcare.GCommon.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.Services.Core\AnimalHealthcare.Services.Core.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.Web.Infrastructure\AnimalHealthcare.Web.Infrastructure.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.Web.ViewModels\AnimalHealthcare.Web.ViewModels.csproj" />
   </ItemGroup>
 
   <ItemGroup>

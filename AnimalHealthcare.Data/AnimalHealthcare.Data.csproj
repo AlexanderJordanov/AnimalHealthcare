@@ -25,9 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AspNetCoreArchTemplate.Data.Common\AnimalHealthcare.Data.Common.csproj" />
-    <ProjectReference Include="..\AspNetCoreArchTemplate.Data.Models\AnimalHealthcare.Data.Models.csproj" />
-    <ProjectReference Include="..\AspNetCoreArchTemplate.GCommon\AnimalHealthcare.GCommon.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.Data.Models\AnimalHealthcare.Data.Models.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.GCommon\AnimalHealthcare.GCommon.csproj" />
+    <ProjectReference Include="..\AnimalHealthcare.Data.Common\AnimalHealthcare.Data.Common.csproj" />
   </ItemGroup>
 
 </Project>
