@@ -4,6 +4,7 @@ using AnimalHealthcare.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AnimalHealthcare.Data.Migrations
 {
     [DbContext(typeof(AnimalHealthcareDbContext))]
-    partial class AnimalHealthcareDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250624102432_SeedDoctors")]
+    partial class SeedDoctors
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,12 +41,8 @@ namespace AnimalHealthcare.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int?>("DoctorId")
+                    b.Property<int>("DoctorId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
@@ -71,30 +70,6 @@ namespace AnimalHealthcare.Data.Migrations
                     b.HasIndex("UserProfileId");
 
                     b.ToTable("Animals");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Age = 4,
-                            Breed = "Labrador Retriever",
-                            Gender = "Male",
-                            IsDeleted = false,
-                            Name = "Buddy",
-                            Species = "Dog",
-                            UserProfileId = "28d4fc17-fdaf-4dc5-9bb3-5cc0b4c64bc2"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Age = 3,
-                            Breed = "Siamese",
-                            Gender = "Female",
-                            IsDeleted = false,
-                            Name = "Whiskers",
-                            Species = "Cat",
-                            UserProfileId = "28d4fc17-fdaf-4dc5-9bb3-5cc0b4c64bc2"
-                        });
                 });
 
             modelBuilder.Entity("AnimalHealthcare.Data.Models.AnimalClinic", b =>
@@ -427,133 +402,6 @@ namespace AnimalHealthcare.Data.Migrations
                     b.HasIndex("ProcedureId");
 
                     b.ToTable("DoctorProcedures");
-
-                    b.HasData(
-                        new
-                        {
-                            DoctorId = 1,
-                            ProcedureId = 3
-                        },
-                        new
-                        {
-                            DoctorId = 1,
-                            ProcedureId = 10
-                        },
-                        new
-                        {
-                            DoctorId = 1,
-                            ProcedureId = 16
-                        },
-                        new
-                        {
-                            DoctorId = 2,
-                            ProcedureId = 2
-                        },
-                        new
-                        {
-                            DoctorId = 3,
-                            ProcedureId = 9
-                        },
-                        new
-                        {
-                            DoctorId = 3,
-                            ProcedureId = 11
-                        },
-                        new
-                        {
-                            DoctorId = 4,
-                            ProcedureId = 5
-                        },
-                        new
-                        {
-                            DoctorId = 4,
-                            ProcedureId = 7
-                        },
-                        new
-                        {
-                            DoctorId = 5,
-                            ProcedureId = 8
-                        },
-                        new
-                        {
-                            DoctorId = 5,
-                            ProcedureId = 6
-                        },
-                        new
-                        {
-                            DoctorId = 6,
-                            ProcedureId = 21
-                        },
-                        new
-                        {
-                            DoctorId = 7,
-                            ProcedureId = 12
-                        },
-                        new
-                        {
-                            DoctorId = 8,
-                            ProcedureId = 10
-                        },
-                        new
-                        {
-                            DoctorId = 9,
-                            ProcedureId = 16
-                        },
-                        new
-                        {
-                            DoctorId = 10,
-                            ProcedureId = 6
-                        },
-                        new
-                        {
-                            DoctorId = 11,
-                            ProcedureId = 20
-                        },
-                        new
-                        {
-                            DoctorId = 11,
-                            ProcedureId = 15
-                        },
-                        new
-                        {
-                            DoctorId = 12,
-                            ProcedureId = 1
-                        },
-                        new
-                        {
-                            DoctorId = 12,
-                            ProcedureId = 4
-                        },
-                        new
-                        {
-                            DoctorId = 12,
-                            ProcedureId = 13
-                        },
-                        new
-                        {
-                            DoctorId = 12,
-                            ProcedureId = 14
-                        },
-                        new
-                        {
-                            DoctorId = 13,
-                            ProcedureId = 1
-                        },
-                        new
-                        {
-                            DoctorId = 13,
-                            ProcedureId = 18
-                        },
-                        new
-                        {
-                            DoctorId = 14,
-                            ProcedureId = 19
-                        },
-                        new
-                        {
-                            DoctorId = 14,
-                            ProcedureId = 17
-                        });
                 });
 
             modelBuilder.Entity("AnimalHealthcare.Data.Models.Procedure", b =>
@@ -723,13 +571,6 @@ namespace AnimalHealthcare.Data.Migrations
                             Description = "Immediate emergency treatment",
                             IsDeleted = false,
                             Name = "Emergency Care"
-                        },
-                        new
-                        {
-                            Id = 21,
-                            Description = "Specialized consultation for neurological conditions",
-                            IsDeleted = false,
-                            Name = "Neurological Consultation"
                         });
                 });
 
@@ -995,7 +836,8 @@ namespace AnimalHealthcare.Data.Migrations
                     b.HasOne("AnimalHealthcare.Data.Models.Doctor", "Doctor")
                         .WithMany("Animals")
                         .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("AnimalHealthcare.Data.Models.UserProfile", "UserProfile")
                         .WithMany("Animals")

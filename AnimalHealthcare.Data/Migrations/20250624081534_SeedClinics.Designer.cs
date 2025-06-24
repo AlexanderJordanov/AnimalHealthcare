@@ -4,6 +4,7 @@ using AnimalHealthcare.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AnimalHealthcare.Data.Migrations
 {
     [DbContext(typeof(AnimalHealthcareDbContext))]
-    partial class AnimalHealthcareDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250624081534_SeedClinics")]
+    partial class SeedClinics
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,12 +41,8 @@ namespace AnimalHealthcare.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int?>("DoctorId")
+                    b.Property<int>("DoctorId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
@@ -71,30 +70,6 @@ namespace AnimalHealthcare.Data.Migrations
                     b.HasIndex("UserProfileId");
 
                     b.ToTable("Animals");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Age = 4,
-                            Breed = "Labrador Retriever",
-                            Gender = "Male",
-                            IsDeleted = false,
-                            Name = "Buddy",
-                            Species = "Dog",
-                            UserProfileId = "28d4fc17-fdaf-4dc5-9bb3-5cc0b4c64bc2"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Age = 3,
-                            Breed = "Siamese",
-                            Gender = "Female",
-                            IsDeleted = false,
-                            Name = "Whiskers",
-                            Species = "Cat",
-                            UserProfileId = "28d4fc17-fdaf-4dc5-9bb3-5cc0b4c64bc2"
-                        });
                 });
 
             modelBuilder.Entity("AnimalHealthcare.Data.Models.AnimalClinic", b =>
@@ -256,162 +231,6 @@ namespace AnimalHealthcare.Data.Migrations
                     b.HasIndex("AnimalClinicId");
 
                     b.ToTable("Doctors");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AnimalClinicId = 1,
-                            ImageUrl = "/images/doctors/sarah-smith.jpg",
-                            IsDeleted = false,
-                            Name = "Dr. Sarah Smith",
-                            PhoneNumber = "555-1001",
-                            Specialization = "Surgery",
-                            YearsOfExperience = 10
-                        },
-                        new
-                        {
-                            Id = 2,
-                            AnimalClinicId = 1,
-                            ImageUrl = "/images/doctors/james-brown.jpg",
-                            IsDeleted = false,
-                            Name = "Dr. James Brown",
-                            PhoneNumber = "555-1002",
-                            Specialization = "Dentistry",
-                            YearsOfExperience = 8
-                        },
-                        new
-                        {
-                            Id = 3,
-                            AnimalClinicId = 1,
-                            ImageUrl = "/images/doctors/laura-green.jpg",
-                            IsDeleted = false,
-                            Name = "Dr. Laura Green",
-                            PhoneNumber = "555-1003",
-                            Specialization = "Dermatology",
-                            YearsOfExperience = 6
-                        },
-                        new
-                        {
-                            Id = 4,
-                            AnimalClinicId = 1,
-                            ImageUrl = "/images/doctors/mark-white.jpg",
-                            IsDeleted = false,
-                            Name = "Dr. Mark White",
-                            PhoneNumber = "555-1004",
-                            Specialization = "Radiology",
-                            YearsOfExperience = 9
-                        },
-                        new
-                        {
-                            Id = 5,
-                            AnimalClinicId = 2,
-                            ImageUrl = "/images/doctors/olivia-wilson.jpg",
-                            IsDeleted = false,
-                            Name = "Dr. Olivia Wilson",
-                            PhoneNumber = "555-1005",
-                            Specialization = "Cardiology",
-                            YearsOfExperience = 12
-                        },
-                        new
-                        {
-                            Id = 6,
-                            AnimalClinicId = 2,
-                            ImageUrl = "/images/doctors/daniel-martinez.jpg",
-                            IsDeleted = false,
-                            Name = "Dr. Daniel Martinez",
-                            PhoneNumber = "555-1006",
-                            Specialization = "Neurology",
-                            YearsOfExperience = 7
-                        },
-                        new
-                        {
-                            Id = 7,
-                            AnimalClinicId = 2,
-                            ImageUrl = "/images/doctors/emma-clark.jpg",
-                            IsDeleted = false,
-                            Name = "Dr. Emma Clark",
-                            PhoneNumber = "555-1007",
-                            Specialization = "Ophthalmology",
-                            YearsOfExperience = 5
-                        },
-                        new
-                        {
-                            Id = 8,
-                            AnimalClinicId = 3,
-                            ImageUrl = "/images/doctors/michael-lee.jpg",
-                            IsDeleted = false,
-                            Name = "Dr. Michael Lee",
-                            PhoneNumber = "555-1008",
-                            Specialization = "Orthopedics",
-                            YearsOfExperience = 11
-                        },
-                        new
-                        {
-                            Id = 9,
-                            AnimalClinicId = 3,
-                            ImageUrl = "/images/doctors/sophia-garcia.jpg",
-                            IsDeleted = false,
-                            Name = "Dr. Sophia Garcia",
-                            PhoneNumber = "555-1009",
-                            Specialization = "Oncology",
-                            YearsOfExperience = 5
-                        },
-                        new
-                        {
-                            Id = 10,
-                            AnimalClinicId = 3,
-                            ImageUrl = "/images/doctors/liam-king.jpg",
-                            IsDeleted = false,
-                            Name = "Dr. Liam King",
-                            PhoneNumber = "555-1010",
-                            Specialization = "Endocrinology",
-                            YearsOfExperience = 4
-                        },
-                        new
-                        {
-                            Id = 11,
-                            AnimalClinicId = 4,
-                            ImageUrl = "/images/doctors/william-johnson.jpg",
-                            IsDeleted = false,
-                            Name = "Dr. William Johnson",
-                            PhoneNumber = "555-1011",
-                            Specialization = "Emergency Medicine",
-                            YearsOfExperience = 13
-                        },
-                        new
-                        {
-                            Id = 12,
-                            AnimalClinicId = 4,
-                            ImageUrl = "/images/doctors/mia-hernandez.jpg",
-                            IsDeleted = false,
-                            Name = "Dr. Mia Hernandez",
-                            PhoneNumber = "555-1012",
-                            Specialization = "General Practice",
-                            YearsOfExperience = 4
-                        },
-                        new
-                        {
-                            Id = 13,
-                            AnimalClinicId = 5,
-                            ImageUrl = "/images/doctors/ethan-robinson.jpg",
-                            IsDeleted = false,
-                            Name = "Dr. Ethan Robinson",
-                            PhoneNumber = "555-1013",
-                            Specialization = "Pediatrics",
-                            YearsOfExperience = 8
-                        },
-                        new
-                        {
-                            Id = 14,
-                            AnimalClinicId = 5,
-                            ImageUrl = "/images/doctors/isabella-lopez.jpg",
-                            IsDeleted = false,
-                            Name = "Dr. Isabella Lopez",
-                            PhoneNumber = "555-1014",
-                            Specialization = "Geriatrics",
-                            YearsOfExperience = 6
-                        });
                 });
 
             modelBuilder.Entity("AnimalHealthcare.Data.Models.DoctorProcedure", b =>
@@ -427,133 +246,6 @@ namespace AnimalHealthcare.Data.Migrations
                     b.HasIndex("ProcedureId");
 
                     b.ToTable("DoctorProcedures");
-
-                    b.HasData(
-                        new
-                        {
-                            DoctorId = 1,
-                            ProcedureId = 3
-                        },
-                        new
-                        {
-                            DoctorId = 1,
-                            ProcedureId = 10
-                        },
-                        new
-                        {
-                            DoctorId = 1,
-                            ProcedureId = 16
-                        },
-                        new
-                        {
-                            DoctorId = 2,
-                            ProcedureId = 2
-                        },
-                        new
-                        {
-                            DoctorId = 3,
-                            ProcedureId = 9
-                        },
-                        new
-                        {
-                            DoctorId = 3,
-                            ProcedureId = 11
-                        },
-                        new
-                        {
-                            DoctorId = 4,
-                            ProcedureId = 5
-                        },
-                        new
-                        {
-                            DoctorId = 4,
-                            ProcedureId = 7
-                        },
-                        new
-                        {
-                            DoctorId = 5,
-                            ProcedureId = 8
-                        },
-                        new
-                        {
-                            DoctorId = 5,
-                            ProcedureId = 6
-                        },
-                        new
-                        {
-                            DoctorId = 6,
-                            ProcedureId = 21
-                        },
-                        new
-                        {
-                            DoctorId = 7,
-                            ProcedureId = 12
-                        },
-                        new
-                        {
-                            DoctorId = 8,
-                            ProcedureId = 10
-                        },
-                        new
-                        {
-                            DoctorId = 9,
-                            ProcedureId = 16
-                        },
-                        new
-                        {
-                            DoctorId = 10,
-                            ProcedureId = 6
-                        },
-                        new
-                        {
-                            DoctorId = 11,
-                            ProcedureId = 20
-                        },
-                        new
-                        {
-                            DoctorId = 11,
-                            ProcedureId = 15
-                        },
-                        new
-                        {
-                            DoctorId = 12,
-                            ProcedureId = 1
-                        },
-                        new
-                        {
-                            DoctorId = 12,
-                            ProcedureId = 4
-                        },
-                        new
-                        {
-                            DoctorId = 12,
-                            ProcedureId = 13
-                        },
-                        new
-                        {
-                            DoctorId = 12,
-                            ProcedureId = 14
-                        },
-                        new
-                        {
-                            DoctorId = 13,
-                            ProcedureId = 1
-                        },
-                        new
-                        {
-                            DoctorId = 13,
-                            ProcedureId = 18
-                        },
-                        new
-                        {
-                            DoctorId = 14,
-                            ProcedureId = 19
-                        },
-                        new
-                        {
-                            DoctorId = 14,
-                            ProcedureId = 17
-                        });
                 });
 
             modelBuilder.Entity("AnimalHealthcare.Data.Models.Procedure", b =>
@@ -582,155 +274,6 @@ namespace AnimalHealthcare.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Procedures");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Routine animal vaccination",
-                            IsDeleted = false,
-                            Name = "Vaccination"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Professional dental cleaning for pets",
-                            IsDeleted = false,
-                            Name = "Dental Cleaning"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Spaying or neutering surgery",
-                            IsDeleted = false,
-                            Name = "Spay/Neuter"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Description = "Microchip implantation for ID",
-                            IsDeleted = false,
-                            Name = "Microchipping"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Description = "Standard diagnostic X-ray",
-                            IsDeleted = false,
-                            Name = "X-Ray"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Description = "Routine blood analysis",
-                            IsDeleted = false,
-                            Name = "Blood Test"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Description = "Abdominal ultrasound exam",
-                            IsDeleted = false,
-                            Name = "Ultrasound"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Description = "Testing for heartworm disease",
-                            IsDeleted = false,
-                            Name = "Heartworm Test"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Description = "Skin or blood allergy tests",
-                            IsDeleted = false,
-                            Name = "Allergy Testing"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Description = "Surgery for bone/joint issues",
-                            IsDeleted = false,
-                            Name = "Orthopedic Surgery"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Description = "Collection and analysis of skin sample",
-                            IsDeleted = false,
-                            Name = "Skin Biopsy"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            Description = "Comprehensive eye examination",
-                            IsDeleted = false,
-                            Name = "Eye Exam"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            Description = "Professional ear cleaning",
-                            IsDeleted = false,
-                            Name = "Ear Cleaning"
-                        },
-                        new
-                        {
-                            Id = 14,
-                            Description = "Treatment for internal/external parasites",
-                            IsDeleted = false,
-                            Name = "Parasite Treatment"
-                        },
-                        new
-                        {
-                            Id = 15,
-                            Description = "Treatment and bandaging of wounds",
-                            IsDeleted = false,
-                            Name = "Wound Care"
-                        },
-                        new
-                        {
-                            Id = 16,
-                            Description = "Surgical tumor removal",
-                            IsDeleted = false,
-                            Name = "Tumor Removal"
-                        },
-                        new
-                        {
-                            Id = 17,
-                            Description = "Consultation for behavioral issues",
-                            IsDeleted = false,
-                            Name = "Behavioral Consultation"
-                        },
-                        new
-                        {
-                            Id = 18,
-                            Description = "Trimming of nails/claws",
-                            IsDeleted = false,
-                            Name = "Nail Trim"
-                        },
-                        new
-                        {
-                            Id = 19,
-                            Description = "Basic grooming service",
-                            IsDeleted = false,
-                            Name = "Grooming"
-                        },
-                        new
-                        {
-                            Id = 20,
-                            Description = "Immediate emergency treatment",
-                            IsDeleted = false,
-                            Name = "Emergency Care"
-                        },
-                        new
-                        {
-                            Id = 21,
-                            Description = "Specialized consultation for neurological conditions",
-                            IsDeleted = false,
-                            Name = "Neurological Consultation"
-                        });
                 });
 
             modelBuilder.Entity("AnimalHealthcare.Data.Models.UserProfile", b =>
@@ -758,16 +301,6 @@ namespace AnimalHealthcare.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("UserProfiles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "28d4fc17-fdaf-4dc5-9bb3-5cc0b4c64bc2",
-                            Address = "123 Admin St, Admin City, Admin Country",
-                            FullName = "Admin User",
-                            PhoneNumber = "123-456-7890",
-                            ProfilePictureUrl = "/images/profiles/admin.jpg"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -885,24 +418,6 @@ namespace AnimalHealthcare.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "28d4fc17-fdaf-4dc5-9bb3-5cc0b4c64bc2",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "22222222-2222-2222-2222-222222222222",
-                            Email = "admin@animalhealthcare.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "ADMIN@ANIMALHEALTHCARE.COM",
-                            NormalizedUserName = "ADMIN@ANIMALHEALTHCARE.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBmKoup3TJhw47bvcqlUwPabiIwPFZOLI7qc46/vZm2L+gLbHeatMyc2TEcT+t/Hjw==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "11111111-1111-1111-1111-111111111111",
-                            TwoFactorEnabled = false,
-                            UserName = "admin@animalhealthcare.com"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -995,7 +510,8 @@ namespace AnimalHealthcare.Data.Migrations
                     b.HasOne("AnimalHealthcare.Data.Models.Doctor", "Doctor")
                         .WithMany("Animals")
                         .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("AnimalHealthcare.Data.Models.UserProfile", "UserProfile")
                         .WithMany("Animals")

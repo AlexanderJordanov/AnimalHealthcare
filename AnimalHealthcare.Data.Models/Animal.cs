@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AnimalHealthcare.GCommon.Enums;
+using Microsoft.AspNetCore.Identity;
 
 namespace AnimalHealthcare.Data.Models
 {
@@ -14,15 +15,17 @@ namespace AnimalHealthcare.Data.Models
 
         public string Breed { get; set; } = null!;
 
+        public AnimalGender Gender { get; set; }
+
         public string UserProfileId { get; set; } = null!;
 
         // The Animal's owner
         public UserProfile UserProfile { get; set; } = null!;
 
-        public int DoctorId { get; set; }
+        public int? DoctorId { get; set; }
 
         // The Animal's doctor
-        public Doctor Doctor { get; set; } = null!;
+        public Doctor? Doctor { get; set; }
 
         // The Animal's appointment
         public ICollection<Appointment> Appointments { get; set; } = new HashSet<Appointment>();

@@ -42,6 +42,21 @@ namespace AnimalHealthcare.Data.Configuration
                    .WithOne(ap => ap.UserProfile)
                    .HasForeignKey(ap => ap.UserProfileId)
                    .OnDelete(DeleteBehavior.Restrict);
+
+            // Seed data for the admin user profile
+            builder.HasData(GenerateAdminProfile());
+        }
+
+        private static UserProfile GenerateAdminProfile()
+        {
+            return new UserProfile
+            {
+                Id = "28d4fc17-fdaf-4dc5-9bb3-5cc0b4c64bc2",
+                FullName = "Admin User",
+                PhoneNumber = "123-456-7890",
+                Address = "123 Admin St, Admin City, Admin Country",
+                ProfilePictureUrl = "/images/profiles/admin.jpg"
+            };
         }
     }
 }

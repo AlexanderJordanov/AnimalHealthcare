@@ -27,6 +27,10 @@ namespace AnimalHealthcare.Data.Configuration
                    .IsRequired()
                    .HasMaxLength(BreedMaxLength);
 
+            builder.Property(a => a.Gender)
+       .HasConversion<string>()
+                    .IsRequired();
+
             builder.Property(a => a.IsDeleted)
                    .HasDefaultValue(false);
 
@@ -47,6 +51,38 @@ namespace AnimalHealthcare.Data.Configuration
                    .WithOne(ap => ap.Animal)
                    .HasForeignKey(ap => ap.AnimalId)
                    .OnDelete(DeleteBehavior.Restrict);
+
+            // Seed data
+            builder.HasData(SeedAnimals());
+        }
+
+        private static IEnumerable<Animal> SeedAnimals()
+        {
+            return new List<Animal>
+            {
+                new Animal
+                {
+                    Id = 1,
+                    Name = "Buddy",
+                    Species = "Dog",
+                    Breed = "Labrador Retriever",
+                    Age = 4,
+                    Gender = GCommon.Enums.AnimalGender.Male,
+                    IsDeleted = false,
+                    UserProfileId = "28d4fc17-fdaf-4dc5-9bb3-5cc0b4c64bc2"
+                },
+                new Animal
+                {
+                    Id = 2,
+                    Name = "Whiskers",
+                    Species = "Cat",
+                    Breed = "Siamese",
+                    Age = 3,
+                    Gender = GCommon.Enums.AnimalGender.Female,
+                    IsDeleted = false,
+                    UserProfileId = "28d4fc17-fdaf-4dc5-9bb3-5cc0b4c64bc2"
+                }
+            };
         }
     }
 }
