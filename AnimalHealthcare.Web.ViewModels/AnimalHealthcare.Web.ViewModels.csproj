@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AnimalHealthcare.Data.Models\AnimalHealthcare.Data.Models.csproj" />
     <ProjectReference Include="..\AnimalHealthcare.GCommon\AnimalHealthcare.GCommon.csproj" />
     <ProjectReference Include="..\AnimalHealthcare.Services.AutoMapping\AnimalHealthcare.AutoMapping.csproj" />

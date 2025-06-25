@@ -13,6 +13,14 @@ namespace AnimalHealthcare.Services.Core.Contracts
         UserProfileViewModel BuildUserProfileViewModel(UserProfile profile, List<AnimalSummaryViewModel> animals);
 
         Task UpdateProfilePictureAsync(string userId, string profilePictureUrl);
+
+        Task<EditEmailViewModel?> BuildEditEmailViewModelAsync(string userId);
+
+        Task<(bool success, bool unchanged)> UpdateEmailAsync(string userId, EditEmailViewModel model);
+
+        Task<EditFullNameViewModel?> BuildEditFullNameViewModelAsync(string userId);
+
+        Task<bool> UpdateFullNameAsync(string userId, EditFullNameViewModel model);
     }
 }
 

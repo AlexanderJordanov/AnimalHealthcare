@@ -28,7 +28,7 @@ namespace AnimalHealthcare.Data.Configuration
                    .HasMaxLength(BreedMaxLength);
 
             builder.Property(a => a.Gender)
-       .HasConversion<string>()
+                    .HasConversion<string>()
                     .IsRequired();
 
             builder.Property(a => a.IsDeleted)

@@ -1,5 +1,6 @@
 ﻿using AnimalHealthcare.Services.Core;
 using AnimalHealthcare.Services.Core.Contracts;
+using AnimalHealthcare.Web.ViewModels.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimalHealthcare.Web.Controllers
@@ -55,6 +56,86 @@ namespace AnimalHealthcare.Web.Controllers
 
             await _userProfileService.UpdateProfilePictureAsync(userId, null);
             TempData["SuccessMessage"] = "Profile picture removed successfully!";
+            return RedirectToAction(nameof(ViewProfile));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditEmail()
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            var model = await _userProfileService.BuildEditEmailViewModelAsync(userId);
+            if (model == null) return NotFound();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditEmail(EditEmailViewModel model)
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var (success, unchanged) = await _userProfileService.UpdateEmailAsync(userId, model);
+
+            if (!success)
+            {
+                // Optional: log or handle failure
+                ModelState.AddModelError("", "Email update failed. Please try again.");
+                return View(model);
+            }
+
+            if (unchanged)
+            {
+                TempData["InfoMessage"] = "Your email is unchanged.";
+                return View(model);
+            }
+            else
+            {
+                TempData["SuccessMessage"] = "Email updated successfully!";
+                return RedirectToAction(nameof(ViewProfile));
+            }           
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> EditFullName()
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            var model = await _userProfileService.BuildEditFullNameViewModelAsync(userId);
+            if (model == null) return NotFound();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditFullName(EditFullNameViewModel model)
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var updated = await _userProfileService.UpdateFullNameAsync(userId, model);
+
+            if (!updated)
+            {
+                TempData["InfoMessage"] = "Your full name is unchanged.";
+                return View(model);
+            }
+
+            TempData["SuccessMessage"] = "Full name updated successfully!";
             return RedirectToAction(nameof(ViewProfile));
         }
     }
