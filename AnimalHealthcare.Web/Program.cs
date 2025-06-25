@@ -38,6 +38,7 @@ namespace AnimalHealthcare.Web
                 .AddEntityFrameworkStores<AnimalHealthcareDbContext>();
 
             builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+            builder.Services.AddScoped<IAnimalService, AnimalService>();
 
             builder.Services.AddControllersWithViews();
 

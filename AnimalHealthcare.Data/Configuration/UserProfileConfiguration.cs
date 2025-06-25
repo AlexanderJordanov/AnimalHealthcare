@@ -25,6 +25,9 @@ namespace AnimalHealthcare.Data.Configuration
             builder.Property(up => up.ProfilePictureUrl)
                    .HasMaxLength(ProfilePictureUrlMaxLength);
 
+            builder.Property(p => p.IsDeleted)
+                   .HasDefaultValue(false);
+
             // Relationship with IdentityUser (one-to-one)
             builder.HasOne(up => up.User)
                    .WithOne()

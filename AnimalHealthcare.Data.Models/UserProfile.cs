@@ -17,6 +17,8 @@ namespace AnimalHealthcare.Data.Models
 
         public string? ProfilePictureUrl { get; set; }
 
+        public bool IsDeleted { get; set; } = false;
+
         // Navigation properties for related entities
         public ICollection<Animal> Animals { get; set; } = new HashSet<Animal>();
 

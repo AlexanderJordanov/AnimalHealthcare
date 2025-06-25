@@ -1,0 +1,86 @@
+﻿@using AnimalHealthcare.Web.ViewModels.UserProfile
+@model UserProfileViewModel
+
+@{
+    ViewData["Title"] = "Your Profile";
+}
+
+<h1>Your Profile</h1>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <img src="@(!string.IsNullOrEmpty(Model.ProfilePictureUrl) ? Model.ProfilePictureUrl : "/images/default-profile.png")"
+             alt="Profile Picture"
+             class="img-thumbnail" />
+
+        @if (string.IsNullOrEmpty(Model.ProfilePictureUrl))
+        {
+            <form asp-action="AddProfilePicture" method="post" class="mt-2">
+                <div class="mb-2">
+                    <input type="url" name="profilePictureUrl" class="form-control" placeholder="Enter image URL" required />
+                </div>
+                <button type="submit" class="btn btn-primary">Add Profile Picture</button>
+            </form>
+        }
+        else
+        {
+            <form asp-action="RemoveProfilePicture" method="post" class="mt-2">
+                <button type="submit" class="btn btn-warning">Remove Profile Picture</button>
+            </form>
+        }
+    </div>
+    <div class="col-md-9">
+        <p class="text-primary fs-5"><strong>Email:</strong> @Model.Email <a asp-action="EditEmail" class="btn btn-primary">Edit</a></p>
+        <p class="text-primary fs-5"><strong>Full Name:</strong> @Model.FullName <a asp-action="EditFullName" class="btn btn-primary">Edit</a></p>
+        <p class="text-primary fs-5"><strong>Phone Number:</strong> @(Model.PhoneNumber ?? "You have not added a phone number.") <a asp-action="EditPhoneNumber" class="btn btn-primary">Edit</a></p>
+        <p class="text-primary fs-5"><strong>Address:</strong> @(Model.Address ?? "You have not added an address.") <a asp-action="EditAddress" class="btn btn-primary">Edit</a></p>
+    </div>
+</div>
+
+<h3>Your Pets</h3>
+
+@if (Model.Animals.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Species</th>
+                <th>Breed</th>
+                <th>Name</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var pet in Model.Animals)
+            {
+                <tr>
+                    <td>@pet.Species</td>
+                    <td>@pet.Breed</td>
+                    <td>@pet.Name</td>
+                    <td>
+                        <a asp-controller="Animal" asp-action="Details" asp-route-id="@pet.Id" class="btn btn-sm btn-info">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-primary fs-5">You have not registered any pets yet.</p>
+}
+
+<a asp-controller="Animal" asp-action="Create" class="btn btn-success mb-3">Register Pet</a>
+
+<hr />
+<h4 class="text-danger">Danger Zone</h4>
+<form asp-action="DeleteAccount" method="post">
+    <button type="submit" class="btn btn-danger">Delete Account</button>
+</form>
