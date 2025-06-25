@@ -4,10 +4,12 @@ namespace AnimalHealthcare.Web.ViewModels.UserProfile
 {
     using static AnimalHealthcare.GCommon.ValidationConstants.UserProfile;
     using static AnimalHealthcare.GCommon.ValidationConstants.ErrorMessages;
+    using static AnimalHealthcare.GCommon.ValidationConstants;
+
     public class EditPhoneNumberViewModel
     {
-        [Phone(ErrorMessage = "Please enter a valid phone number.")]
-        [StringLength(PhoneNumberMaxLength, ErrorMessage = StringLength)]
+        [StringLength(PhoneNumberMaxLength, MinimumLength = PhoneNumberMinLength, ErrorMessage = StringLength)]
+        [Phone(ErrorMessage = ErrorMessages.PhoneNumber)]
         [Display(Name = "Phone Number")]
         public string? PhoneNumber { get; set; }
     }

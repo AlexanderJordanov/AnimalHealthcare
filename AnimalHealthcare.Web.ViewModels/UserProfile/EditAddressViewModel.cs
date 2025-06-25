@@ -6,7 +6,7 @@
 
     public class EditAddressViewModel
     {
-        [StringLength(AddressMaxLength, ErrorMessage = StringLength)]
+        [StringLength(AddressMaxLength,MinimumLength = AddressMinLength, ErrorMessage = StringLength)]
         [Display(Name = "Address")]
         public string? Address { get; set; }
     }

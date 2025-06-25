@@ -147,5 +147,59 @@ namespace AnimalHealthcare.Services.Core
 
             return true; // updated
         }
+
+        public async Task<EditPhoneNumberViewModel?> BuildEditPhoneNumberViewModelAsync(string userId)
+        {
+            var profile = await _context.UserProfiles.FindAsync(userId);
+            if (profile == null) return null;
+
+            return new EditPhoneNumberViewModel
+            {
+                PhoneNumber = profile.PhoneNumber
+            };
+        }
+
+        public async Task UpdatePhoneNumberAsync(string userId, EditPhoneNumberViewModel model)
+        {
+            var profile = await _context.UserProfiles.FindAsync(userId);
+            if (profile == null) throw new InvalidOperationException("Profile not found.");
+
+            // Treat empty string as null (optional but cleaner)
+            var newPhone = string.IsNullOrWhiteSpace(model.PhoneNumber) ? null : model.PhoneNumber;
+
+            if (profile.PhoneNumber == newPhone)
+            {
+                throw new InvalidOperationException("Phone number is unchanged.");
+            }
+
+            profile.PhoneNumber = newPhone;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<EditAddressViewModel?> BuildEditAddressViewModelAsync(string userId)
+        {
+            var profile = await _context.UserProfiles.FindAsync(userId);
+            if (profile == null) return null;
+
+            return new EditAddressViewModel
+            {
+                Address = profile.Address
+            };
+        }
+
+        public async Task<bool> UpdateAddressAsync(string userId, EditAddressViewModel model)
+        {
+            var profile = await _context.UserProfiles.FindAsync(userId);
+            if (profile == null) throw new InvalidOperationException("Profile not found.");
+
+            if (profile.Address == model.Address)
+            {
+                return true;
+            }
+
+            profile.Address = model.Address;
+            await _context.SaveChangesAsync();
+            return false;
+        }
     }
 }

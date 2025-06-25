@@ -21,6 +21,14 @@ namespace AnimalHealthcare.Services.Core.Contracts
         Task<EditFullNameViewModel?> BuildEditFullNameViewModelAsync(string userId);
 
         Task<bool> UpdateFullNameAsync(string userId, EditFullNameViewModel model);
+
+        Task<EditPhoneNumberViewModel?> BuildEditPhoneNumberViewModelAsync(string userId);
+
+        Task UpdatePhoneNumberAsync(string userId, EditPhoneNumberViewModel model);
+
+        Task<EditAddressViewModel?> BuildEditAddressViewModelAsync(string userId);
+
+        Task<bool> UpdateAddressAsync(string userId, EditAddressViewModel model);
     }
 }
 

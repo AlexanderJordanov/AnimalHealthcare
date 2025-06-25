@@ -35,7 +35,9 @@
         {
             public const int FullNameMaxLength = 100;
             public const int FullNameMinLength = 2;
+            public const int PhoneNumberMinLength = 10;
             public const int PhoneNumberMaxLength = 20;
+            public const int AddressMinLength = 20;
             public const int AddressMaxLength = 250;
             public const int ProfilePictureUrlMaxLength = 255;
             public const string FullNameRegex = @"^[a-zA-Z\s'-]+$";
@@ -53,6 +55,7 @@
             public const string Required = "{0} is required.";
             public const string StringLength = "{0} must be between {2} and {1} characters.";
             public const string Email = "Please enter a valid email address.";
+            public const string PhoneNumber = "Please enter a valid phone number.";
         }
     }
 }

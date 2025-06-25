@@ -1,0 +1,28 @@
+﻿@model AnimalHealthcare.Web.ViewModels.UserProfile.EditPhoneNumberViewModel
+
+@{
+    ViewData["Title"] = "Edit Phone Number";
+}
+
+<h1>Edit Phone Number</h1>
+
+@if (TempData["InfoMessage"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        @TempData["InfoMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form asp-action="EditPhoneNumber" method="post">
+    <div class="mb-3">
+        <label asp-for="PhoneNumber" class="form-label text-primary fw-bold fs-5"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

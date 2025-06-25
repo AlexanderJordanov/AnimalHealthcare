@@ -100,7 +100,7 @@ namespace AnimalHealthcare.Web.Controllers
             {
                 TempData["SuccessMessage"] = "Email updated successfully!";
                 return RedirectToAction(nameof(ViewProfile));
-            }           
+            }
         }
 
 
@@ -136,6 +136,74 @@ namespace AnimalHealthcare.Web.Controllers
             }
 
             TempData["SuccessMessage"] = "Full name updated successfully!";
+            return RedirectToAction(nameof(ViewProfile));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditPhoneNumber()
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            var model = await _userProfileService.BuildEditPhoneNumberViewModelAsync(userId);
+            if (model == null) return NotFound();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditPhoneNumber(EditPhoneNumberViewModel model)
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            if (!ModelState.IsValid) return View(model);
+
+            try
+            {
+                await _userProfileService.UpdatePhoneNumberAsync(userId, model);
+                TempData["SuccessMessage"] = "Phone number updated successfully!";
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["InfoMessage"] = ex.Message;
+                return View(model);
+            }
+
+            return RedirectToAction(nameof(ViewProfile));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditAddress()
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            var model = await _userProfileService.BuildEditAddressViewModelAsync(userId);
+            if (model == null) return NotFound();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditAddress(EditAddressViewModel model)
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var unchanged = await _userProfileService.UpdateAddressAsync(userId, model);
+            if (unchanged)
+            {
+                TempData["InfoMessage"] = "Your address is unchanged.";
+                return View(model);
+            }
+
+            TempData["SuccessMessage"] = "Address updated successfully!";
             return RedirectToAction(nameof(ViewProfile));
         }
     }
