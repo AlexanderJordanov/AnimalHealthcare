@@ -34,9 +34,11 @@
         public static class UserProfile
         {
             public const int FullNameMaxLength = 100;
+            public const int FullNameMinLength = 2;
             public const int PhoneNumberMaxLength = 20;
             public const int AddressMaxLength = 250;
             public const int ProfilePictureUrlMaxLength = 255;
+            public const string FullNameRegex = @"^[a-zA-Z\s'-]+$";
         }
     }
 }

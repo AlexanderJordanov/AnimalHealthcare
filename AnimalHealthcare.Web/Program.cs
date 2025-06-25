@@ -1,5 +1,10 @@
+using AnimalHealthcare.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 namespace AnimalHealthcare.Web
 {
+    using AnimalHealthcare.Services.Core;
+    using AnimalHealthcare.Services.Core.Contracts;
     using Data;
 
     using Microsoft.AspNetCore.Identity;
@@ -23,8 +28,17 @@ namespace AnimalHealthcare.Web
                 .AddDefaultIdentity<IdentityUser>(options =>
                 {
                     options.SignIn.RequireConfirmedAccount = true;
+
+                    options.Password.RequireDigit = true;
+                    options.Password.RequireLowercase = true;
+                    options.Password.RequireUppercase = true;
+                    options.Password.RequireNonAlphanumeric = false;
+                    options.Password.RequiredLength = 6;
                 })
                 .AddEntityFrameworkStores<AnimalHealthcareDbContext>();
+
+            builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+
             builder.Services.AddControllersWithViews();
 
             WebApplication? app = builder.Build();
