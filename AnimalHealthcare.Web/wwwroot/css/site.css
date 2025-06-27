@@ -81,6 +81,7 @@ footer {
     color: #282281 !important;
 }
 
+
 .navbar .dropdown-toggle::after {
     transition: transform 0.2s ease;
     display: inline-block;
@@ -89,3 +90,4 @@ footer {
 .navbar .dropdown-toggle[aria-expanded="true"]::after {
     transform: rotate(180deg);
 }
+

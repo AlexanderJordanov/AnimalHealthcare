@@ -47,36 +47,43 @@
 
 @if (Model.Animals.Any())
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Species</th>
-                <th>Breed</th>
-                <th>Name</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var pet in Model.Animals)
-            {
+    <div class="table-responsive" style="max-width: 70%;">
+        <table class="table table-striped table-bordered align-middle">
+            <thead>
                 <tr>
-                    <td>@pet.Species</td>
-                    <td>@pet.Breed</td>
-                    <td>@pet.Name</td>
-                    <td>
-                        <a asp-controller="Animal" asp-action="Details" asp-route-id="@pet.Id" class="btn btn-sm btn-info">Details</a>
-                    </td>
+                    <th>Species</th>
+                    <th>Breed</th>
+                    <th>Name</th>
+                    <th style="width: 150px;">Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var pet in Model.Animals)
+                {
+                    <tr>
+                        <td>@pet.Species</td>
+                        <td>@pet.Breed</td>
+                        <td>@pet.Name</td>
+                        <td>
+                            <div class="d-flex">
+                                <a asp-controller="Animal" asp-action="Details" asp-route-id="@pet.Id" class="btn btn-sm btn-info me-2">Details</a>
+                                <form asp-controller="Animal" asp-action="Unregister" asp-route-id="@pet.Id" method="get">
+                                    <button type="submit" class="btn btn-sm btn-danger">Unregister</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 else
 {
     <p class="text-primary fs-5">You have not registered any pets yet.</p>
 }
 
-<a asp-controller="Animal" asp-action="Create" class="btn btn-success mb-3">Register Pet</a>
+<a asp-controller="Animal" asp-action="Register" class="btn btn-success mb-3">Register Pet</a>
 
 <hr />
 <h4 class="text-danger">Danger Zone</h4>

@@ -27,8 +27,13 @@
         public static class Animal
         {
             public const int NameMaxLength = 100;
+            public const int NameMinLength = 2;
             public const int SpeciesMaxLength = 50;
+            public const int SpeciesMinLength = 2;
             public const int BreedMaxLength = 50;
+            public const int BreedMinLength = 2;
+            public const int AgeMin = 0;
+            public const int AgeMax = 100;
         }
 
         public static class UserProfile

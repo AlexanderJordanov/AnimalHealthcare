@@ -1,0 +1,49 @@
+﻿@model AnimalHealthcare.Web.ViewModels.Animal.RegisterPetViewModel
+
+@{
+    ViewData["Title"] = "Register a Pet";
+}
+
+<h2 class="mb-4">Register a Pet</h2>
+
+<form asp-action="Register" method="post" class="needs-validation" novalidate>
+    @Html.AntiForgeryToken()
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label text-primary fs-5 fw-bold"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Age" class="form-label text-primary fs-5 fw-bold"></label>
+        <input asp-for="Age" class="form-control" type="number" min="0" />
+        <span asp-validation-for="Age" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Species" class="form-label text-primary fs-5 fw-bold"></label>
+        <input asp-for="Species" class="form-control" />
+        <span asp-validation-for="Species" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Breed" class="form-label text-primary fs-5 fw-bold"></label>
+        <input asp-for="Breed" class="form-control" />
+        <span asp-validation-for="Breed" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Gender" class="form-label text-primary fs-5 fw-bold"></label>
+        <select asp-for="Gender" asp-items="Html.GetEnumSelectList<AnimalHealthcare.GCommon.Enums.AnimalGender>()" class="form-select">
+            <option value="">-- Select Gender --</option>
+        </select>
+        <span asp-validation-for="Gender" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Register Pet</button>
+    <a asp-action="ViewProfile" asp-controller="UserProfile" class="btn btn-secondary ms-2">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

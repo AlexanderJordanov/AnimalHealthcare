@@ -15,6 +15,7 @@
 }
 
 <form asp-action="EditPhoneNumber" method="post">
+    @Html.AntiForgeryToken()
     <div class="mb-3">
         <label asp-for="PhoneNumber" class="form-label text-primary fw-bold fs-5"></label>
         <input asp-for="PhoneNumber" class="form-control" />

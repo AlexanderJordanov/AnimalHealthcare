@@ -21,30 +21,31 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="exploreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Explore
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="exploreDropdown">
-                                <li><a class="dropdown-item" asp-controller="Doctor" asp-action="Index">Doctors</a></li>
-                                <li><a class="dropdown-item" asp-controller="AnimalClinic" asp-action="Index">Clinics</a></li>
-                                <li><a class="dropdown-item" asp-controller="Procedure" asp-action="Index">Procedures</a></li>
-                            </ul>
-                        </li>
-                        @if (User.Identity?.IsAuthenticated ?? false)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Appointment" asp-action="MyAppointments">My Appointments</a>
-                            </li>
-                        }
+                       
                     </ul>
 
                     <ul class="navbar-nav">
                         @if (User.Identity?.IsAuthenticated ?? false)
                         {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="exploreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Explore
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="exploreDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Doctor" asp-action="Index">Doctors</a></li>
+                                    <li><a class="dropdown-item" asp-controller="AnimalClinic" asp-action="Index">Clinics</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Procedure" asp-action="Index">Procedures</a></li>
+                                </ul>
+                            </li>
+                            @if (User.Identity?.IsAuthenticated ?? false)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Appointment" asp-action="MyAppointments">My Appointments</a>
+                                </li>
+                            }
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="UserProfile" asp-action="ViewProfile">View Profile</a>
-                            </li>
+                            </li>                          
                         }
                         <li class="nav-item">
                             <partial name="_LoginPartial" />

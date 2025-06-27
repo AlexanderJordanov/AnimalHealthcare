@@ -31,6 +31,7 @@ namespace AnimalHealthcare.Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddProfilePicture(string profilePictureUrl)
         {
             var userId = GetUserId();
@@ -49,6 +50,7 @@ namespace AnimalHealthcare.Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveProfilePicture()
         {
             var userId = GetUserId();
@@ -72,6 +74,7 @@ namespace AnimalHealthcare.Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditEmail(EditEmailViewModel model)
         {
             var userId = GetUserId();
@@ -117,6 +120,7 @@ namespace AnimalHealthcare.Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditFullName(EditFullNameViewModel model)
         {
             var userId = GetUserId();
@@ -152,6 +156,7 @@ namespace AnimalHealthcare.Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPhoneNumber(EditPhoneNumberViewModel model)
         {
             var userId = GetUserId();
@@ -186,6 +191,7 @@ namespace AnimalHealthcare.Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditAddress(EditAddressViewModel model)
         {
             var userId = GetUserId();

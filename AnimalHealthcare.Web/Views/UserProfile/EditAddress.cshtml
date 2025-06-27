@@ -22,6 +22,7 @@
 }
 
 <form asp-action="EditAddress" method="post">
+    @Html.AntiForgeryToken()
     <div class="mb-3">
         <label asp-for="Address" class="form-label fw-bold fs-5 text-primary"></label>
         <input asp-for="Address" class="form-control" />

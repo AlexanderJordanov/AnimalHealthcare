@@ -1,0 +1,21 @@
+﻿@model AnimalHealthcare.Web.ViewModels.Animal.UnregisterPetViewModel
+
+@{
+    ViewData["Title"] = "Unregister Pet";
+}
+
+<h2 class="text-danger">Confirm Unregistration</h2>
+<p>Are you sure you want to unregister the following pet?</p>
+
+<ul>
+    <li><strong>Name:</strong> @Model.Name</li>
+    <li><strong>Species:</strong> @Model.Species</li>
+    <li><strong>Breed:</strong> @Model.Breed</li>
+</ul>
+
+<form asp-action="UnregisterConfirmed" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.Id" />
+    <button type="submit" class="btn btn-danger">Yes, Unregister</button>
+    <a asp-controller="UserProfile" asp-action="ViewProfile" class="btn btn-secondary">Cancel</a>
+</form>
