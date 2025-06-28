@@ -13,10 +13,6 @@ namespace AnimalHealthcare.Web.Controllers
             _animalService = animalService;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
         [HttpGet]
         public IActionResult Register()
         {

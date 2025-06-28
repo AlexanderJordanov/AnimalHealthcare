@@ -29,6 +29,8 @@ namespace AnimalHealthcare.Services.Core.Contracts
         Task<EditAddressViewModel?> BuildEditAddressViewModelAsync(string profileId, string requestingUserId);
 
         Task<(bool success, bool unchanged)> UpdateAddressAsync(string profileId, EditAddressViewModel model, string requestingUserId);
+
+        Task<bool> DeleteUserProfileAsync(string targetUserId, string requestingUserId);
     }
 }
 

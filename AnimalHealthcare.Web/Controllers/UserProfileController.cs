@@ -1,6 +1,7 @@
 ﻿using AnimalHealthcare.Services.Core;
 using AnimalHealthcare.Services.Core.Contracts;
 using AnimalHealthcare.Web.ViewModels.UserProfile;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimalHealthcare.Web.Controllers
@@ -213,6 +214,36 @@ namespace AnimalHealthcare.Web.Controllers
 
             TempData["SuccessMessage"] = "Address updated successfully!";
             return RedirectToAction(nameof(ViewProfile));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete()
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            var profile = await _userProfileService.GetProfileByIdAsync(userId, userId);
+            if (profile == null) return Forbid();
+
+            return View(new DeleteUserProfileViewModel
+            {
+                FullName = profile.FullName,
+                Email = profile.User.Email!
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmDelete()
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            var success = await _userProfileService.DeleteUserProfileAsync(userId, userId);
+            if (!success) return Forbid();
+
+            TempData["SuccessMessage"] = "Your profile has been deleted.";
+            return RedirectToAction("Index", "Home");
         }
     }
 }

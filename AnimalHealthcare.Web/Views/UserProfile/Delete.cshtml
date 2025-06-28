@@ -1,0 +1,19 @@
+﻿@model AnimalHealthcare.Web.ViewModels.UserProfile.DeleteUserProfileViewModel
+
+@{
+    ViewData["Title"] = "Delete Profile";
+}
+
+<h2 class="text-danger">Delete Profile</h2>
+<p class="mb-3 fs-5 text-primary">Are you sure you want to delete your profile?</p>
+
+<div class="mb-3 fs-5 text-primary">
+    <strong>Name:</strong> @Model.FullName<br />
+    <strong>Email:</strong> @Model.Email
+</div>
+
+<form asp-action="ConfirmDelete" method="post">
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-danger">Yes, Delete My Profile</button>
+    <a asp-action="ViewProfile" class="btn btn-secondary">Cancel</a>
+</form>

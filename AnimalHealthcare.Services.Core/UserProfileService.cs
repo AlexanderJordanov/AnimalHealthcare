@@ -193,5 +193,41 @@ namespace AnimalHealthcare.Services.Core
             return (true, false);
         }
 
+        public async Task<bool> DeleteUserProfileAsync(string targetUserId, string requestingUserId)
+        {
+            if (targetUserId != requestingUserId)
+                return false;
+
+            var userProfile = await _context.UserProfiles
+                .Include(p => p.Animals)
+                .ThenInclude(a => a.Appointments)
+                .FirstOrDefaultAsync(p => p.Id == targetUserId);
+
+            var user = await _userManager.FindByIdAsync(targetUserId);
+            if (userProfile == null || user == null)
+                return false;
+
+            // Soft-delete animals and remove appointments
+            foreach (var animal in userProfile.Animals)
+            {
+                if (animal.Appointments.Any())
+                {
+                    _context.Appointments.RemoveRange(animal.Appointments);
+                }
+
+                animal.IsDeleted = true;
+            }
+
+            // Remove profile and delete Identity user
+            _context.UserProfiles.Remove(userProfile);
+
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+                return false;
+
+            await _signInManager.SignOutAsync(); // Log out the user
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
