@@ -36,7 +36,6 @@ namespace AnimalHealthcare.Services.Core
             await _context.SaveChangesAsync();
         }
 
-        // Used in login logic to retrieve user profile by email
         public async Task<UserProfile?> GetByEmailAsync(string email)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
@@ -45,11 +44,14 @@ namespace AnimalHealthcare.Services.Core
             return await _context.UserProfiles.FindAsync(user.Id);
         }
 
-        public async Task<UserProfile?> GetProfileByIdAsync(string userId)
+        public async Task<UserProfile?> GetProfileByIdAsync(string profileId, string requestingUserId)
         {
+            if (profileId != requestingUserId)
+                return null;
+
             return await _context.UserProfiles
                 .Include(p => p.User)
-                .FirstOrDefaultAsync(p => p.Id == userId);
+                .FirstOrDefaultAsync(p => p.Id == profileId);
         }
 
         public UserProfileViewModel BuildUserProfileViewModel(UserProfile profile, List<AnimalSummaryViewModel> animals)
@@ -65,141 +67,131 @@ namespace AnimalHealthcare.Services.Core
             };
         }
 
-        public async Task UpdateProfilePictureAsync(string userId, string profilePictureUrl)
+        public async Task<bool> UpdateProfilePictureAsync(string profileId, string? profilePictureUrl, string requestingUserId)
         {
-            var profile = await _context.UserProfiles.FindAsync(userId);
-            if (profile == null) return;
+            if (profileId != requestingUserId)
+                return false;
+
+            var profile = await _context.UserProfiles.FindAsync(profileId);
+            if (profile == null) return false;
 
             profile.ProfilePictureUrl = profilePictureUrl;
             await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task<EditEmailViewModel?> BuildEditEmailViewModelAsync(string userId)
+        public async Task<EditEmailViewModel?> BuildEditEmailViewModelAsync(string profileId, string requestingUserId)
         {
+            if (profileId != requestingUserId)
+                return null;
+
             var profile = await _context.UserProfiles
                 .Include(p => p.User)
-                .FirstOrDefaultAsync(p => p.Id == userId);
+                .FirstOrDefaultAsync(p => p.Id == profileId);
 
-            if (profile == null) return null;
-
-            return new EditEmailViewModel
-            {
-                Email = profile.User.Email!
-            };
+            return profile == null ? null : new EditEmailViewModel { Email = profile.User.Email! };
         }
 
-        public async Task<(bool success, bool unchanged)> UpdateEmailAsync(string userId, EditEmailViewModel model)
+        public async Task<(bool success, bool unchanged)> UpdateEmailAsync(string profileId, EditEmailViewModel model, string requestingUserId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
+            if (profileId != requestingUserId)
                 return (false, false);
-            }
+
+            var user = await _userManager.FindByIdAsync(profileId);
+            if (user == null) return (false, false);
 
             if (user.Email == model.Email)
-            {
-                return (true, true); // success, but unchanged
-            }
+                return (true, true);
 
             var token = await _userManager.GenerateChangeEmailTokenAsync(user, model.Email);
             var result = await _userManager.ChangeEmailAsync(user, model.Email, token);
-
-            if (!result.Succeeded)
-            {
-                return (false, false);
-            }
+            if (!result.Succeeded) return (false, false);
 
             user.UserName = model.Email;
             var updateResult = await _userManager.UpdateAsync(user);
-            if (!updateResult.Succeeded)
-            {
-                return (false, false);
-            }
+            if (!updateResult.Succeeded) return (false, false);
 
             await _signInManager.RefreshSignInAsync(user);
-
-            return (true, false); // success, email changed
+            return (true, false);
         }
 
-        public async Task<EditFullNameViewModel?> BuildEditFullNameViewModelAsync(string userId)
+        public async Task<EditFullNameViewModel?> BuildEditFullNameViewModelAsync(string profileId, string requestingUserId)
         {
-            var profile = await _context.UserProfiles.FindAsync(userId);
-            if (profile == null) return null;
+            if (profileId != requestingUserId)
+                return null;
 
-            return new EditFullNameViewModel
-            {
-                FullName = profile.FullName
-            };
+            var profile = await _context.UserProfiles.FindAsync(profileId);
+            return profile == null ? null : new EditFullNameViewModel { FullName = profile.FullName };
         }
 
-        public async Task<bool> UpdateFullNameAsync(string userId, EditFullNameViewModel model)
+        public async Task<bool> UpdateFullNameAsync(string profileId, EditFullNameViewModel model, string requestingUserId)
         {
-            var profile = await _context.UserProfiles.FindAsync(userId);
-            if (profile == null) throw new InvalidOperationException("Profile not found.");
+            if (profileId != requestingUserId)
+                return false;
+
+            var profile = await _context.UserProfiles.FindAsync(profileId);
+            if (profile == null) return false;
 
             if (profile.FullName == model.FullName)
-            {
-                return false; // unchanged
-            }
+                return false;
 
             profile.FullName = model.FullName;
             await _context.SaveChangesAsync();
-
-            return true; // updated
+            return true;
         }
 
-        public async Task<EditPhoneNumberViewModel?> BuildEditPhoneNumberViewModelAsync(string userId)
+        public async Task<EditPhoneNumberViewModel?> BuildEditPhoneNumberViewModelAsync(string profileId, string requestingUserId)
         {
-            var profile = await _context.UserProfiles.FindAsync(userId);
-            if (profile == null) return null;
+            if (profileId != requestingUserId)
+                return null;
 
-            return new EditPhoneNumberViewModel
-            {
-                PhoneNumber = profile.PhoneNumber
-            };
+            var profile = await _context.UserProfiles.FindAsync(profileId);
+            return profile == null ? null : new EditPhoneNumberViewModel { PhoneNumber = profile.PhoneNumber };
         }
 
-        public async Task UpdatePhoneNumberAsync(string userId, EditPhoneNumberViewModel model)
+        public async Task<bool> UpdatePhoneNumberAsync(string profileId, EditPhoneNumberViewModel model, string requestingUserId)
         {
-            var profile = await _context.UserProfiles.FindAsync(userId);
-            if (profile == null) throw new InvalidOperationException("Profile not found.");
+            if (profileId != requestingUserId)
+                return false;
 
-            // Treat empty string as null (optional but cleaner)
+            var profile = await _context.UserProfiles.FindAsync(profileId);
+            if (profile == null) return false;
+
             var newPhone = string.IsNullOrWhiteSpace(model.PhoneNumber) ? null : model.PhoneNumber;
 
             if (profile.PhoneNumber == newPhone)
-            {
                 throw new InvalidOperationException("Phone number is unchanged.");
-            }
 
             profile.PhoneNumber = newPhone;
             await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task<EditAddressViewModel?> BuildEditAddressViewModelAsync(string userId)
+        public async Task<EditAddressViewModel?> BuildEditAddressViewModelAsync(string profileId, string requestingUserId)
         {
-            var profile = await _context.UserProfiles.FindAsync(userId);
-            if (profile == null) return null;
+            if (profileId != requestingUserId)
+                return null;
 
-            return new EditAddressViewModel
-            {
-                Address = profile.Address
-            };
+            var profile = await _context.UserProfiles.FindAsync(profileId);
+            return profile == null ? null : new EditAddressViewModel { Address = profile.Address };
         }
 
-        public async Task<bool> UpdateAddressAsync(string userId, EditAddressViewModel model)
+        public async Task<(bool success, bool unchanged)> UpdateAddressAsync(string profileId, EditAddressViewModel model, string requestingUserId)
         {
-            var profile = await _context.UserProfiles.FindAsync(userId);
-            if (profile == null) throw new InvalidOperationException("Profile not found.");
+            if (profileId != requestingUserId) return (false, false);
+
+            var profile = await _context.UserProfiles.FindAsync(profileId);
+            if (profile == null) return (false, false);
 
             if (profile.Address == model.Address)
             {
-                return true;
+                return (true, true); // success, unchanged
             }
 
             profile.Address = model.Address;
             await _context.SaveChangesAsync();
-            return false;
+            return (true, false);
         }
+
     }
 }

@@ -8,27 +8,27 @@ namespace AnimalHealthcare.Services.Core.Contracts
         Task CreateUserProfileAsync(string userId, string fullName, string? phoneNumber, string? address, string? profilePictureUrl);
         Task<UserProfile?> GetByEmailAsync(string email);
 
-        Task<UserProfile?> GetProfileByIdAsync(string userId);
+        Task<UserProfile?> GetProfileByIdAsync(string profileId, string requestingUserId);
 
         UserProfileViewModel BuildUserProfileViewModel(UserProfile profile, List<AnimalSummaryViewModel> animals);
 
-        Task UpdateProfilePictureAsync(string userId, string profilePictureUrl);
+        Task<bool> UpdateProfilePictureAsync(string profileId, string? profilePictureUrl, string requestingUserId);
 
-        Task<EditEmailViewModel?> BuildEditEmailViewModelAsync(string userId);
+        Task<EditEmailViewModel?> BuildEditEmailViewModelAsync(string profileId, string requestingUserId);
 
-        Task<(bool success, bool unchanged)> UpdateEmailAsync(string userId, EditEmailViewModel model);
+        Task<(bool success, bool unchanged)> UpdateEmailAsync(string profileId, EditEmailViewModel model, string requestingUserId);
 
-        Task<EditFullNameViewModel?> BuildEditFullNameViewModelAsync(string userId);
+        Task<EditFullNameViewModel?> BuildEditFullNameViewModelAsync(string profileId, string requestingUserId);
 
-        Task<bool> UpdateFullNameAsync(string userId, EditFullNameViewModel model);
+        Task<bool> UpdateFullNameAsync(string profileId, EditFullNameViewModel model, string requestingUserId);
 
-        Task<EditPhoneNumberViewModel?> BuildEditPhoneNumberViewModelAsync(string userId);
+        Task<EditPhoneNumberViewModel?> BuildEditPhoneNumberViewModelAsync(string profileId, string requestingUserId);
 
-        Task UpdatePhoneNumberAsync(string userId, EditPhoneNumberViewModel model);
+        Task<bool> UpdatePhoneNumberAsync(string profileId, EditPhoneNumberViewModel model, string requestingUserId);
 
-        Task<EditAddressViewModel?> BuildEditAddressViewModelAsync(string userId);
+        Task<EditAddressViewModel?> BuildEditAddressViewModelAsync(string profileId, string requestingUserId);
 
-        Task<bool> UpdateAddressAsync(string userId, EditAddressViewModel model);
+        Task<(bool success, bool unchanged)> UpdateAddressAsync(string profileId, EditAddressViewModel model, string requestingUserId);
     }
 }
 

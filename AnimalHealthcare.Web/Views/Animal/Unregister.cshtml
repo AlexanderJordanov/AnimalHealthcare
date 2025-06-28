@@ -5,6 +5,7 @@
 }
 
 <h2 class="text-danger">Confirm Unregistration</h2>
+<div class="mb-3 fs-5 text-primary">
 <p>Are you sure you want to unregister the following pet?</p>
 
 <ul>
@@ -12,6 +13,7 @@
     <li><strong>Species:</strong> @Model.Species</li>
     <li><strong>Breed:</strong> @Model.Breed</li>
 </ul>
+</div>
 
 <form asp-action="UnregisterConfirmed" method="post">
     @Html.AntiForgeryToken()

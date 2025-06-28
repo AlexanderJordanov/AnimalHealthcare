@@ -1,0 +1,50 @@
+﻿@model AnimalHealthcare.Web.ViewModels.Animal.AnimalDetailsViewModel
+
+@{
+    ViewData["Title"] = "Animal Details";
+}
+
+<h2 class="text-primary">Animal Details</h2>
+
+<div class="mb-3 fs-5 text-primary">
+    <p><strong>Name:</strong> @Model.Name</p>
+    <p><strong>Age:</strong> @Model.Age</p>
+    <p><strong>Gender:</strong> @Model.Gender</p>
+    <p><strong>Species:</strong> @Model.Species</p>
+    <p><strong>Breed:</strong> @Model.Breed</p>
+</div>
+
+@if (Model.Appointments.Any())
+{
+    <h4 class="text-primary">Appointments</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Date & Time</th>
+                <th>Doctor</th>
+                <th>Clinic</th>
+                <th>Procedure</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var appt in Model.Appointments)
+            {
+                <tr>
+                    <td>@appt.AppointmentDateTime.ToString("g")</td>
+                    <td>@appt.DoctorName</td>
+                    <td>@appt.ClinicName</td>
+                    <td>@appt.ProcedureName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-primary">No appointments found for this pet.</p>
+}
+<hr />
+<div class="mt-3">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">Edit Pet Info</a>
+    <a asp-controller="UserProfile" asp-action="ViewProfile" class="btn btn-secondary">Back to Profile</a>
+</div>

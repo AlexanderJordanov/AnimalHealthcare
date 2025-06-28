@@ -22,7 +22,7 @@ namespace AnimalHealthcare.Web.Controllers
             var userId = GetUserId();
             if (userId == null) return Unauthorized();
 
-            var profile = await _userProfileService.GetProfileByIdAsync(userId);
+            var profile = await _userProfileService.GetProfileByIdAsync(userId, userId);
             var animals = await _animalService.GetAnimalSummariesByOwnerIdAsync(userId);
             var model = _userProfileService.BuildUserProfileViewModel(profile, animals);
             if (model == null) return NotFound();
@@ -44,7 +44,7 @@ namespace AnimalHealthcare.Web.Controllers
                 return RedirectToAction(nameof(ViewProfile));
             }
 
-            await _userProfileService.UpdateProfilePictureAsync(userId, profilePictureUrl);
+            await _userProfileService.UpdateProfilePictureAsync(userId, profilePictureUrl, userId);
             TempData["SuccessMessage"] = "Profile picture updated successfully!";
             return RedirectToAction(nameof(ViewProfile));
         }
@@ -56,7 +56,7 @@ namespace AnimalHealthcare.Web.Controllers
             var userId = GetUserId();
             if (userId == null) return Unauthorized();
 
-            await _userProfileService.UpdateProfilePictureAsync(userId, null);
+            await _userProfileService.UpdateProfilePictureAsync(userId, null, userId);
             TempData["SuccessMessage"] = "Profile picture removed successfully!";
             return RedirectToAction(nameof(ViewProfile));
         }
@@ -67,7 +67,7 @@ namespace AnimalHealthcare.Web.Controllers
             var userId = GetUserId();
             if (userId == null) return Unauthorized();
 
-            var model = await _userProfileService.BuildEditEmailViewModelAsync(userId);
+            var model = await _userProfileService.BuildEditEmailViewModelAsync(userId, userId);
             if (model == null) return NotFound();
 
             return View(model);
@@ -85,11 +85,10 @@ namespace AnimalHealthcare.Web.Controllers
                 return View(model);
             }
 
-            var (success, unchanged) = await _userProfileService.UpdateEmailAsync(userId, model);
+            var (success, unchanged) = await _userProfileService.UpdateEmailAsync(userId, model, userId);
 
             if (!success)
             {
-                // Optional: log or handle failure
                 ModelState.AddModelError("", "Email update failed. Please try again.");
                 return View(model);
             }
@@ -106,14 +105,13 @@ namespace AnimalHealthcare.Web.Controllers
             }
         }
 
-
         [HttpGet]
         public async Task<IActionResult> EditFullName()
         {
             var userId = GetUserId();
             if (userId == null) return Unauthorized();
 
-            var model = await _userProfileService.BuildEditFullNameViewModelAsync(userId);
+            var model = await _userProfileService.BuildEditFullNameViewModelAsync(userId, userId);
             if (model == null) return NotFound();
 
             return View(model);
@@ -131,7 +129,7 @@ namespace AnimalHealthcare.Web.Controllers
                 return View(model);
             }
 
-            var updated = await _userProfileService.UpdateFullNameAsync(userId, model);
+            var updated = await _userProfileService.UpdateFullNameAsync(userId, model, userId);
 
             if (!updated)
             {
@@ -149,7 +147,7 @@ namespace AnimalHealthcare.Web.Controllers
             var userId = GetUserId();
             if (userId == null) return Unauthorized();
 
-            var model = await _userProfileService.BuildEditPhoneNumberViewModelAsync(userId);
+            var model = await _userProfileService.BuildEditPhoneNumberViewModelAsync(userId, userId);
             if (model == null) return NotFound();
 
             return View(model);
@@ -166,7 +164,7 @@ namespace AnimalHealthcare.Web.Controllers
 
             try
             {
-                await _userProfileService.UpdatePhoneNumberAsync(userId, model);
+                await _userProfileService.UpdatePhoneNumberAsync(userId, model, userId);
                 TempData["SuccessMessage"] = "Phone number updated successfully!";
             }
             catch (InvalidOperationException ex)
@@ -184,7 +182,7 @@ namespace AnimalHealthcare.Web.Controllers
             var userId = GetUserId();
             if (userId == null) return Unauthorized();
 
-            var model = await _userProfileService.BuildEditAddressViewModelAsync(userId);
+            var model = await _userProfileService.BuildEditAddressViewModelAsync(userId, userId);
             if (model == null) return NotFound();
 
             return View(model);
@@ -202,7 +200,11 @@ namespace AnimalHealthcare.Web.Controllers
                 return View(model);
             }
 
-            var unchanged = await _userProfileService.UpdateAddressAsync(userId, model);
+            var (success, unchanged) = await _userProfileService.UpdateAddressAsync(userId, model, userId);
+
+            if (!success)
+                return Forbid();
+
             if (unchanged)
             {
                 TempData["InfoMessage"] = "Your address is unchanged.";
