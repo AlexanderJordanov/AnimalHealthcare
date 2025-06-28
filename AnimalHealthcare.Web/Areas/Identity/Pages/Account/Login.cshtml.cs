@@ -112,14 +112,6 @@ namespace AnimalHealthcare.Web.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                // Check if user exists and is not deleted
-                var userProfile = await _userProfileService.GetByEmailAsync(Input.Email);
-                if (userProfile != null && userProfile.IsDeleted)
-                {
-                    ModelState.AddModelError(string.Empty, "Your account has been deleted!");
-                    return Page();
-                }
-
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);

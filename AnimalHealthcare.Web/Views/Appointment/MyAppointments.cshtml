@@ -1,0 +1,46 @@
+﻿@model List<AnimalHealthcare.Web.ViewModels.Appointment.MyAppointmentViewModel>
+@{
+    ViewData["Title"] = "My Appointments";
+}
+
+<h2 class="text-primary">My Appointments</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">You have no appointments.</div>
+}
+else
+{
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Pet</th>
+                <th>Procedure</th>
+                <th>Date & Time</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var appt in Model)
+            {
+                <tr>
+                    <td>@appt.PetName</td>
+                    <td>@appt.ProcedureName</td>
+                    <td>@appt.AppointmentDateTime.ToString("g")</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@appt.Id" class="btn btn-sm btn-info me-2">Details</a>
+                        <form asp-action="Cancel" asp-route-id="@appt.Id" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="mt-4">
+    <a asp-action="Create" class="btn btn-success me-2">Create Appointment</a>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Back to Home</a>
+</div>
