@@ -22,11 +22,6 @@ namespace AnimalHealthcare.Data.Models
         // The Animal's owner
         public UserProfile UserProfile { get; set; } = null!;
 
-        public int? DoctorId { get; set; }
-
-        // The Animal's doctor
-        public Doctor? Doctor { get; set; }
-
         // The Animal's appointment
         public ICollection<Appointment> Appointments { get; set; } = new HashSet<Appointment>();
 

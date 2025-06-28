@@ -62,7 +62,6 @@ namespace AnimalHealthcare.Services.Core
         {
             var animal = await _context.Animals
                 .Include(a => a.Appointments)
-                .Include(a => a.Doctor)
                 .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
 
             if (animal == null) return false;

@@ -17,9 +17,6 @@
         // Navigation property for the clinic where the doctor works
         public AnimalClinic AnimalClinic { get; set; } = null!;
 
-        // Navigation property for related animals
-        public ICollection<Animal> Animals { get; set; } = new HashSet<Animal>();
-
         // Navigation property for related procedures
         public ICollection<DoctorProcedure> DoctorProcedures { get; set; } = new HashSet<DoctorProcedure>();
 

@@ -40,12 +40,6 @@ namespace AnimalHealthcare.Data.Configuration
                    .HasForeignKey(d => d.AnimalClinicId)
                    .OnDelete(DeleteBehavior.Restrict);
 
-            // Relationship with Animals (one doctor to many animals)
-            builder.HasMany(d => d.Animals)
-                   .WithOne(a => a.Doctor)
-                   .HasForeignKey(a => a.DoctorId)
-                   .OnDelete(DeleteBehavior.Restrict);
-
             // Relationship with DoctorProcedures (one doctor to many doctorprocedures)
             builder.HasMany(d => d.DoctorProcedures)
                    .WithOne(dp => dp.Doctor)

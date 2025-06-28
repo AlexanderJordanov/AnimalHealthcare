@@ -34,12 +34,6 @@ namespace AnimalHealthcare.Data.Configuration
             builder.Property(a => a.IsDeleted)
                    .HasDefaultValue(false);
 
-            // Relationship: Animal -> Doctor (many animals to one doctor)
-            builder.HasOne(a => a.Doctor)
-                   .WithMany(d => d.Animals)
-                   .HasForeignKey(a => a.DoctorId)
-                   .OnDelete(DeleteBehavior.Restrict);
-
             // Relationship: Animal -> UserProfile (many animals to one user)
             builder.HasOne(a => a.UserProfile)
                    .WithMany(up => up.Animals)
