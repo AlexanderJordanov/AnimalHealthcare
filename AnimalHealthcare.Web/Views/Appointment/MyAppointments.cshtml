@@ -27,7 +27,7 @@ else
                     <td>@appt.PetName</td>
                     <td>@appt.ProcedureName</td>
                     <td>@appt.AppointmentDateTime.ToString("g")</td>
-                    <td>
+                    <td width="150px">
                         <a asp-action="Details" asp-route-id="@appt.Id" class="btn btn-sm btn-info me-2">Details</a>
                         <form asp-action="Cancel" asp-route-id="@appt.Id" method="post" class="d-inline">
                             @Html.AntiForgeryToken()

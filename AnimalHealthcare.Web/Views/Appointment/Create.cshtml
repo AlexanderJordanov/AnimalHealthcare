@@ -1,0 +1,108 @@
+﻿@model AnimalHealthcare.Web.ViewModels.Appointment.CreateAppointmentViewModel
+@{
+    ViewData["Title"] = "Create Appointment";
+}
+
+<h2>Create Appointment</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label asp-for="AnimalId" class="form-label fw-bold text-primary"></label>
+        <select asp-for="AnimalId" class="form-select" asp-items="Model.UserPets">
+            <option disabled selected>-- Select Pet --</option>
+        </select>
+        <span asp-validation-for="AnimalId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ProcedureId" class="form-label fw-bold text-primary"></label>
+        <select asp-for="ProcedureId" class="form-select" asp-items="Model.Procedures" id="procedureDropdown">
+            <option disabled selected>-- Select Procedure --</option>
+        </select>
+        <span asp-validation-for="ProcedureId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DoctorId" class="form-label fw-bold text-primary"></label>
+        <select asp-for="DoctorId" class="form-select" id="doctorDropdown">
+            <option disabled selected>-- Select Doctor --</option>
+        </select>
+        <span asp-validation-for="DoctorId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Date" class="form-label fw-bold text-primary"></label>
+        <input asp-for="Date" class="form-control" type="date"
+               min="@Model.MinDate.ToString("yyyy-MM-dd")"
+               max="@Model.MaxDate.ToString("yyyy-MM-dd")"
+               id="datePicker" />
+        <span asp-validation-for="Date" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="TimeSlot" class="form-label fw-bold text-primary"></label>
+        <select asp-for="TimeSlot" class="form-select" id="timeSlotDropdown">
+            <option disabled selected>-- Select Time --</option>
+        </select>
+        <span asp-validation-for="TimeSlot" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Book Appointment</button>
+    <a asp-action="MyAppointments" class="btn btn-secondary ms-2">Back to My Appointments</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function loadDoctors() {
+            const procedureId = $('#procedureDropdown').val();
+            if (!procedureId) return;
+
+            $.getJSON(`/Appointment/GetDoctorsByProcedure?procedureId=${procedureId}`, function (data) {
+                const dropdown = $('#doctorDropdown');
+                dropdown.empty().append(`<option disabled selected>-- Select Doctor --</option>`);
+                $.each(data, function (i, doctor) {
+                    dropdown.append(`<option value="${doctor.value}">${doctor.text}</option>`);
+                });
+            });
+        }
+
+        function loadTimeSlots() {
+            const doctorId = $('#doctorDropdown').val();
+            const date = $('#datePicker').val();
+            if (!doctorId || !date) return;
+
+            $.getJSON(`/Appointment/GetAvailableTimeSlots?doctorId=${doctorId}&date=${date}`, function (data) {
+                const dropdown = $('#timeSlotDropdown');
+                dropdown.empty().append(`<option disabled selected>-- Select Time --</option>`);
+                $.each(data, function (i, time) {
+                    dropdown.append(`<option value="${time.value}">${time.text}</option>`);
+                });
+            });
+        }
+
+        $('#procedureDropdown').on('change', function () {
+            loadDoctors();
+            $('#doctorDropdown').empty().append(`<option disabled selected>-- Select Doctor --</option>`);
+            $('#timeSlotDropdown').empty().append(`<option disabled selected>-- Select Time --</option>`);
+        });
+
+        $('#doctorDropdown, #datePicker').on('change', function () {
+            loadTimeSlots();
+        });
+    </script>
+}

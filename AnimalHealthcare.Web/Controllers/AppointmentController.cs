@@ -1,15 +1,19 @@
 ﻿using AnimalHealthcare.Services.Core.Contracts;
+using AnimalHealthcare.Web.ViewModels.Appointment;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace AnimalHealthcare.Web.Controllers
 {
     public class AppointmentController : BaseController
     {
         private readonly IAppointmentService _appointmentService;
+        private readonly IDoctorService _doctorService;
 
-        public AppointmentController(IAppointmentService appointmentService)
+        public AppointmentController(IAppointmentService appointmentService, IDoctorService doctorService)
         {
             _appointmentService = appointmentService;
+            _doctorService = doctorService;
         }
 
         public async Task<IActionResult> MyAppointments()
@@ -20,6 +24,63 @@ namespace AnimalHealthcare.Web.Controllers
             var appointments = await _appointmentService.GetAppointmentsByUserIdAsync(userId);
 
             return View(appointments);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            var model = await _appointmentService.BuildCreateAppointmentViewModelAsync(userId);
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CreateAppointmentViewModel model)
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            if (!ModelState.IsValid)
+            {
+                // Repopulate dropdowns in case of error
+                model = await _appointmentService.BuildCreateAppointmentViewModelAsync(userId);
+                model.Doctors = await _doctorService.GetDoctorsByProcedureAsync(model.ProcedureId);
+                model.TimeSlots = await _appointmentService.GetAvailableTimeSlotsAsync(model.DoctorId, model.Date);
+                return View(model);
+            }
+
+            var success = await _appointmentService.CreateAppointmentAsync(model, userId);
+            if (!success)
+            {
+                TempData["ErrorMessage"] = "Failed to create appointment. Please try again.";
+                return RedirectToAction("Create");
+            }
+            
+            TempData["SuccessMessage"] = "Appointment created successfully!";
+            return RedirectToAction("MyAppointments");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDoctorsByProcedure(int procedureId)
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            var doctors = await _doctorService.GetDoctorsByProcedureAsync(procedureId);
+            return Json(doctors);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableTimeSlots(int doctorId, DateTime date)
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            var timeSlots = await _appointmentService.GetAvailableTimeSlotsAsync(doctorId, date);
+            return Json(timeSlots);
         }
     }
 }
