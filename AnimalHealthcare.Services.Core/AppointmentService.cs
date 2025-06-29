@@ -202,5 +202,36 @@ namespace AnimalHealthcare.Services.Core
                 ProcedureDescription = appointment.Procedure.Description
             };
         }
+
+        public async Task<CancelAppointmentViewModel?> BuildCancelAppointmentViewModelAsync(int appointmentId, string userId)
+        {
+            var appointment = await _context.Appointments
+                .Include(a => a.Animal)
+                .Include(a => a.Doctor)
+                .FirstOrDefaultAsync(a => a.Id == appointmentId && !a.IsDeleted && a.Animal.UserProfileId == userId);
+
+            if (appointment == null) return null;
+
+            return new CancelAppointmentViewModel
+            {
+                AppointmentId = appointment.Id,
+                PetName = appointment.Animal.Name,
+                DoctorName = appointment.Doctor.Name,
+                AppointmentTime = appointment.AppointmentDateTime
+            };
+        }
+
+        public async Task<bool> CancelAppointmentAsync(int appointmentId, string userId)
+        {
+            var appointment = await _context.Appointments
+                .Include(a => a.Animal)
+                .FirstOrDefaultAsync(a => a.Id == appointmentId && !a.IsDeleted && a.Animal.UserProfileId == userId);
+
+            if (appointment == null) return false;
+
+            appointment.IsDeleted = true;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

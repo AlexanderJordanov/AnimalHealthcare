@@ -94,5 +94,31 @@ namespace AnimalHealthcare.Web.Controllers
 
             return View(model);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Cancel(int id)
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            var model = await _appointmentService.BuildCancelAppointmentViewModelAsync(id, userId);
+            if (model == null) return NotFound();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmCancel(int appointmentId)
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            var success = await _appointmentService.CancelAppointmentAsync(appointmentId, userId);
+            if (!success) return Forbid();
+
+            TempData["SuccessMessage"] = "Appointment successfully canceled.";
+            return RedirectToAction("MyAppointments");
+        }
     }
 }

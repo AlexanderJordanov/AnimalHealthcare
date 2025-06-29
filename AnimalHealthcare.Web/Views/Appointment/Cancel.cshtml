@@ -1,0 +1,26 @@
+﻿@model AnimalHealthcare.Web.ViewModels.Appointment.CancelAppointmentViewModel
+
+@{
+    ViewData["Title"] = "Cancel Appointment";
+}
+
+<h2 class="text-danger">Cancel Appointment</h2>
+
+<div class="alert alert-warning">
+    <strong>Are you sure you want to cancel this appointment?</strong>
+</div>
+
+<div class="fw-bold fs-5 text-primary">
+    <p><strong>Pet Name:</strong> @Model.PetName</p>
+    <p><strong>Doctor Name:</strong> @Model.DoctorName</p>
+    <p><strong>Appointment Time:</strong> @Model.AppointmentTime.ToString("f")</p>
+</div>
+
+<form asp-action="ConfirmCancel" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="AppointmentId" />
+
+    <button type="submit" class="btn btn-danger me-2">Confirm</button>
+    <a asp-action="MyAppointments" class="btn btn-secondary">Cancel</a>
+</form>
+

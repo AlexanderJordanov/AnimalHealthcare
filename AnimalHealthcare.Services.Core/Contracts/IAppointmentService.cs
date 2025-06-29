@@ -15,5 +15,11 @@ namespace AnimalHealthcare.Services.Core.Contracts
         Task<bool> CreateAppointmentAsync(CreateAppointmentViewModel model, string userId);
 
         Task<AppointmentDetailsViewModel?> GetAppointmentDetailsAsync(int appointmentId, string requestingUserId);
+
+        Task<CancelAppointmentViewModel?> BuildCancelAppointmentViewModelAsync(int appointmentId, string userId);
+
+        Task<bool> CancelAppointmentAsync(int appointmentId, string userId);
+
+
     }
 }

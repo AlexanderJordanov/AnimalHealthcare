@@ -29,7 +29,7 @@ else
                     <td>@appt.AppointmentDateTime.ToString("g")</td>
                     <td width="150px">
                         <a asp-action="Details" asp-route-id="@appt.Id" class="btn btn-sm btn-info me-2">Details</a>
-                        <form asp-action="Cancel" asp-route-id="@appt.Id" method="post" class="d-inline">
+                        <form asp-action="Cancel" asp-route-id="@appt.Id" method="get" class="d-inline">
                             @Html.AntiForgeryToken()
                             <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
                         </form>

@@ -110,7 +110,7 @@ namespace AnimalHealthcare.Services.Core
                 Gender = animal.Gender.ToString(),
                 Species = animal.Species,
                 Breed = animal.Breed,
-                Appointments = animal.Appointments.Select(a => new AnimalAppointmentViewModel
+                Appointments = animal.Appointments.Where(a => a.IsDeleted == false).Select(a => new AnimalAppointmentViewModel
                 {
                     AppointmentDateTime = a.AppointmentDateTime,
                     DoctorName = a.Doctor.Name,
