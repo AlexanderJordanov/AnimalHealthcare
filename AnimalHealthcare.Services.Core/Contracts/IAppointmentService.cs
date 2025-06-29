@@ -13,5 +13,7 @@ namespace AnimalHealthcare.Services.Core.Contracts
         Task<List<SelectListItem>> GetAvailableTimeSlotsAsync(int doctorId, DateTime date);
 
         Task<bool> CreateAppointmentAsync(CreateAppointmentViewModel model, string userId);
+
+        Task<AppointmentDetailsViewModel?> GetAppointmentDetailsAsync(int appointmentId, string requestingUserId);
     }
 }

@@ -163,5 +163,44 @@ namespace AnimalHealthcare.Services.Core
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<AppointmentDetailsViewModel?> GetAppointmentDetailsAsync(int appointmentId, string requestingUserId)
+        {
+            var appointment = await _context.Appointments
+                .Include(a => a.Animal)
+                    .ThenInclude(an => an.UserProfile)
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d.AnimalClinic)
+                .Include(a => a.Procedure)
+                .FirstOrDefaultAsync(a => a.Id == appointmentId);
+
+            if (appointment == null || appointment.Animal.IsDeleted || appointment.Animal.UserProfileId != requestingUserId)
+            {
+                return null; // Not found or access denied
+            }
+
+            return new AppointmentDetailsViewModel
+            {
+                // Pet & Owner
+                OwnerFullName = appointment.Animal.UserProfile.FullName,
+                PetName = appointment.Animal.Name,
+                Species = appointment.Animal.Species,
+                Breed = appointment.Animal.Breed,
+                Age = appointment.Animal.Age,
+                Gender = appointment.Animal.Gender.ToString(),
+
+                // Doctor
+                DoctorName = appointment.Doctor.Name,
+                Specialization = appointment.Doctor.Specialization,
+                YearsOfExperience = appointment.Doctor.YearsOfExperience,
+                PhoneNumber = appointment.Doctor.PhoneNumber,
+                ClinicName = appointment.Doctor.AnimalClinic.Name,
+                ClinicAddress = appointment.Doctor.AnimalClinic.Address,
+
+                // Procedure
+                ProcedureName = appointment.Procedure.Name,
+                ProcedureDescription = appointment.Procedure.Description
+            };
+        }
     }
 }

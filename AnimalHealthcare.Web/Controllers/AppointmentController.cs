@@ -82,5 +82,17 @@ namespace AnimalHealthcare.Web.Controllers
             var timeSlots = await _appointmentService.GetAvailableTimeSlotsAsync(doctorId, date);
             return Json(timeSlots);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            var model = await _appointmentService.GetAppointmentDetailsAsync(id, userId);
+            if (model == null) return Forbid();
+
+            return View(model);
+        }
     }
 }

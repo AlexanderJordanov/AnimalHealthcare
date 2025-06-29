@@ -1,0 +1,45 @@
+﻿@model AnimalHealthcare.Web.ViewModels.Appointment.AppointmentDetailsViewModel
+
+@{
+    ViewData["Title"] = "Appointment Details";
+}
+
+<h2 class="text-center text-primary mb-4">Appointment Details</h2>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-primary text-white fw-semibold">Pet Information</div>
+    <div class="card-body">
+        <p><strong>Owner:</strong> @Model.OwnerFullName</p>
+        <p><strong>Pet Name:</strong> @Model.PetName</p>
+        <p><strong>Species:</strong> @Model.Species</p>
+        <p><strong>Breed:</strong> @Model.Breed</p>
+        <p><strong>Age:</strong> @Model.Age</p>
+        <p><strong>Gender:</strong> @Model.Gender</p>
+    </div>
+</div>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-success text-white fw-semibold">Doctor Information</div>
+    <div class="card-body">
+        <p><strong>Doctor Name:</strong> @Model.DoctorName</p>
+        <p><strong>Specialization:</strong> @Model.Specialization</p>
+        <p><strong>Experience:</strong> @Model.YearsOfExperience years</p>
+        <p><strong>Phone Number:</strong> @Model.PhoneNumber</p>
+        <hr />
+        <p><strong>Clinic Name:</strong> @Model.ClinicName</p>
+        <p><strong>Clinic Address:</strong> @Model.ClinicAddress</p>
+    </div>
+</div>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-info text-white fw-semibold">Procedure Information</div>
+    <div class="card-body">
+        <p><strong>Procedure:</strong> @Model.ProcedureName</p>
+        <p><strong>Description:</strong></p>
+        <p>@Model.ProcedureDescription</p>
+    </div>
+</div>
+
+<div class="text-center">
+    <a asp-action="MyAppointments" class="btn btn-outline-primary">Back to My Appointments</a>
+</div>
