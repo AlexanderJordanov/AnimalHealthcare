@@ -30,7 +30,7 @@ namespace AnimalHealthcare.Services.Core
                 })
                 .ToListAsync();
         }
-        public async Task<CreateAppointmentViewModel> BuildCreateAppointmentViewModelAsync(string userId, int? doctorId = null)
+        public async Task<CreateAppointmentViewModel> BuildCreateAppointmentViewModelAsync(string userId, int? doctorId = null, int? procedureId = null)
         {
             var pets = await _context.Animals
                 .Where(a => a.UserProfileId == userId && !a.IsDeleted)
@@ -41,12 +41,11 @@ namespace AnimalHealthcare.Services.Core
                 })
                 .ToListAsync();
 
-            IEnumerable<SelectListItem> procedures;
-            IEnumerable<SelectListItem> doctors;
+            IEnumerable<SelectListItem> procedures = Enumerable.Empty<SelectListItem>();
+            IEnumerable<SelectListItem> doctors = Enumerable.Empty<SelectListItem>();
 
             if (doctorId.HasValue)
             {
-                // Load only procedures this doctor can perform
                 procedures = await _context.DoctorProcedures
                     .Where(dp => dp.DoctorId == doctorId.Value)
                     .Select(dp => new SelectListItem
@@ -56,7 +55,6 @@ namespace AnimalHealthcare.Services.Core
                     })
                     .ToListAsync();
 
-                // Only that doctor in dropdown (if needed)
                 var doctor = await _context.Doctors
                     .Where(d => d.Id == doctorId.Value && !d.IsDeleted)
                     .Select(d => new SelectListItem
@@ -68,6 +66,27 @@ namespace AnimalHealthcare.Services.Core
 
                 doctors = doctor != null ? new List<SelectListItem> { doctor } : Enumerable.Empty<SelectListItem>();
             }
+            else if (procedureId.HasValue)
+            {
+                procedures = await _context.Procedures
+                    .Where(p => p.Id == procedureId.Value && !p.IsDeleted)
+                    .Select(p => new SelectListItem
+                    {
+                        Value = p.Id.ToString(),
+                        Text = p.Name
+                    })
+                    .ToListAsync();
+
+                doctors = await _context.DoctorProcedures
+                    .Where(dp => dp.ProcedureId == procedureId.Value && !dp.Doctor.IsDeleted)
+                    .Select(dp => new SelectListItem
+                    {
+                        Value = dp.DoctorId.ToString(),
+                        Text = dp.Doctor.Name
+                    })
+                    .Distinct()
+                    .ToListAsync();
+            }
             else
             {
                 procedures = await _context.Procedures
@@ -78,8 +97,6 @@ namespace AnimalHealthcare.Services.Core
                         Text = p.Name
                     })
                     .ToListAsync();
-
-                doctors = Enumerable.Empty<SelectListItem>(); // or load all if needed
             }
 
             return new CreateAppointmentViewModel
@@ -88,9 +105,11 @@ namespace AnimalHealthcare.Services.Core
                 Procedures = procedures,
                 Doctors = doctors,
                 DoctorId = doctorId ?? 0,
+                ProcedureId = procedureId ?? 0,
                 Date = DateTime.Today
             };
         }
+
 
 
         public async Task<List<SelectListItem>> GetAvailableTimeSlotsAsync(int doctorId, DateTime date)

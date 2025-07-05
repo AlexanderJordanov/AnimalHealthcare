@@ -1,0 +1,39 @@
+﻿@model AnimalHealthcare.Web.ViewModels.Procedure.ProcedureDetailsViewModel
+
+@{
+    ViewData["Title"] = "Procedure Details";
+}
+
+<h2 class="mb-4">@Model.Name</h2>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title text-primary">Description</h5>
+        <p class="card-text">@Model.Description</p>
+    </div>
+</div>
+
+@if (Model.Doctors.Any())
+{
+    <h4 class="mb-3">Doctors who perform this procedure</h4>
+
+    @foreach (var doctor in Model.Doctors)
+    {
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-1">@doctor.Name</h5>
+                <p class="mb-1"><strong>Specialization:</strong> @doctor.Specialization</p>
+                <p class="mb-1"><strong>Experience:</strong> @doctor.YearsOfExperience years</p>
+                <p class="mb-1"><strong>Phone:</strong> @doctor.PhoneNumber</p>
+                <p class="mb-0"><strong>Clinic:</strong> @doctor.ClinicName</p>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="alert alert-warning">No doctors are currently listed for this procedure.</div>
+}
+
+<a asp-action="Index" class="btn btn-primary mt-3">Back to Procedures</a>
+

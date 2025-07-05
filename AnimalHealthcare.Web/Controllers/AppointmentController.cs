@@ -1,4 +1,5 @@
-﻿using AnimalHealthcare.Services.Core.Contracts;
+﻿using AnimalHealthcare.Services.Core;
+using AnimalHealthcare.Services.Core.Contracts;
 using AnimalHealthcare.Web.ViewModels.Appointment;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -10,11 +11,13 @@ namespace AnimalHealthcare.Web.Controllers
     {
         private readonly IAppointmentService _appointmentService;
         private readonly IDoctorService _doctorService;
+        private readonly IProcedureService _procedureService;
 
-        public AppointmentController(IAppointmentService appointmentService, IDoctorService doctorService)
+        public AppointmentController(IAppointmentService appointmentService, IDoctorService doctorService, IProcedureService procedureService)
         {
             _appointmentService = appointmentService;
             _doctorService = doctorService;
+            _procedureService = procedureService;
         }
 
         [HttpGet]
@@ -29,29 +32,37 @@ namespace AnimalHealthcare.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create(int? doctorId = null)
+        public async Task<IActionResult> Create(int? doctorId = null, int? procedureId = null)
         {
             var userId = GetUserId();
             if (userId == null) return Unauthorized();
 
-            var model = await _appointmentService.BuildCreateAppointmentViewModelAsync(userId, doctorId); // ✅ doctorId passed here
+            var model = await _appointmentService.BuildCreateAppointmentViewModelAsync(userId, doctorId, procedureId);
 
             if (doctorId.HasValue)
             {
-                model.DoctorId = doctorId.Value; // ✅ ensure it gets set
-
+                model.DoctorId = doctorId.Value;
                 model.Doctors = new List<SelectListItem>
         {
             new SelectListItem
             {
                 Value = doctorId.ToString(),
-                Text = (await _doctorService.GetDoctorNameByIdAsync(doctorId.Value)) ?? "Selected Doctor"
+                Text = await _doctorService.GetDoctorNameByIdAsync(doctorId.Value) ?? "Selected Doctor"
             }
         };
             }
-            else
+
+            if (procedureId.HasValue)
             {
-                model.Doctors = Enumerable.Empty<SelectListItem>();
+                model.ProcedureId = procedureId.Value;
+                model.Procedures = new List<SelectListItem>
+        {
+            new SelectListItem
+            {
+                Value = procedureId.ToString(),
+                Text = await _procedureService.GetProcedureNameByIdAsync(procedureId.Value) ?? "Selected Procedure"
+            }
+        };
             }
 
             return View(model);

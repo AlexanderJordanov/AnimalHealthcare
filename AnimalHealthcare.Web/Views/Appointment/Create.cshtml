@@ -30,9 +30,18 @@
 
     <div class="mb-3">
         <label asp-for="ProcedureId" class="form-label fw-bold text-primary"></label>
-        <select asp-for="ProcedureId" class="form-select" asp-items="Model.Procedures" id="procedureDropdown">
-            <option disabled selected>-- Select Procedure --</option>
-        </select>
+        @if (Model.Procedures.Count() == 1)
+        {
+            <!-- Show as read-only if preselected -->
+            <input type="text" class="form-control" value="@Model.Procedures.First().Text" disabled />
+            <input type="hidden" asp-for="ProcedureId" id="procedureDropdown" />
+        }
+        else
+        {
+            <select asp-for="ProcedureId" class="form-select" asp-items="Model.Procedures" id="procedureDropdown">
+                <option disabled selected>-- Select Procedure --</option>
+            </select>
+        }
         <span asp-validation-for="ProcedureId" class="text-danger"></span>
     </div>
 

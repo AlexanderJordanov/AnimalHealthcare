@@ -40,6 +40,7 @@ namespace AnimalHealthcare.Web
             builder.Services.AddScoped<IAppointmentService, AppointmentService>();
             builder.Services.AddScoped<IDoctorService, DoctorService>();
             builder.Services.AddScoped<IAnimalClinicService, AnimalClinicService>();
+            builder.Services.AddScoped<IProcedureService, ProcedureService>();
 
             builder.Services.AddControllersWithViews();
 
