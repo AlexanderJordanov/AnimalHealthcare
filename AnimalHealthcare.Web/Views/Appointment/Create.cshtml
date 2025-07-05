@@ -37,12 +37,20 @@
     </div>
 
     <div class="mb-3">
-        <label asp-for="DoctorId" class="form-label fw-bold text-primary"></label>
-        <select asp-for="DoctorId" class="form-select" id="doctorDropdown">
-            <option disabled selected>-- Select Doctor --</option>
-        </select>
+        <label asp-for="DoctorId" class="form-label"></label>
+        @if (Model.Doctors.Count() == 1)
+        {
+            <!-- Show as read-only if preselected -->
+            <input type="text" class="form-control" value="@Model.Doctors.First().Text" disabled />
+            <input type="hidden" asp-for="DoctorId" id="doctorDropdown" />
+        }
+        else
+        {
+            <select asp-for="DoctorId" asp-items="Model.Doctors" class="form-select" id="doctorDropdown"></select>
+        }
         <span asp-validation-for="DoctorId" class="text-danger"></span>
     </div>
+
 
     <div class="mb-3">
         <label asp-for="Date" class="form-label fw-bold text-primary"></label>
@@ -104,5 +112,25 @@
         $('#doctorDropdown, #datePicker').on('change', function () {
             loadTimeSlots();
         });
+
+                $(document).ready(function () {
+            const doctorInput = $('[name="DoctorId"]');
+            const doctorId = doctorInput.val();
+            const date = $('#datePicker').val();
+
+            const hasSingleDoctor = doctorInput.length > 0 && $('#doctorDropdown').length === 0;
+
+            if (hasSingleDoctor && doctorId && date) {
+                $.getJSON(`/Appointment/GetAvailableTimeSlots?doctorId=${doctorId}&date=${date}`, function (data) {
+                    const dropdown = $('#timeSlotDropdown');
+                    dropdown.empty().append(`<option disabled selected>-- Select Time --</option>`);
+                    $.each(data, function (i, time) {
+                        dropdown.append(`<option value="${time.value}">${time.text}</option>`);
+                    });
+                });
+            }
+        });
+
+
     </script>
 }

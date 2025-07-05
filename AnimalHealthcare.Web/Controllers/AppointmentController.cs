@@ -1,6 +1,7 @@
 ﻿using AnimalHealthcare.Services.Core.Contracts;
 using AnimalHealthcare.Web.ViewModels.Appointment;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 
 namespace AnimalHealthcare.Web.Controllers
@@ -16,6 +17,7 @@ namespace AnimalHealthcare.Web.Controllers
             _doctorService = doctorService;
         }
 
+        [HttpGet]
         public async Task<IActionResult> MyAppointments()
         {
             var userId = GetUserId();
@@ -27,14 +29,34 @@ namespace AnimalHealthcare.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int? doctorId = null)
         {
             var userId = GetUserId();
             if (userId == null) return Unauthorized();
 
-            var model = await _appointmentService.BuildCreateAppointmentViewModelAsync(userId);
+            var model = await _appointmentService.BuildCreateAppointmentViewModelAsync(userId, doctorId); // ✅ doctorId passed here
+
+            if (doctorId.HasValue)
+            {
+                model.DoctorId = doctorId.Value; // ✅ ensure it gets set
+
+                model.Doctors = new List<SelectListItem>
+        {
+            new SelectListItem
+            {
+                Value = doctorId.ToString(),
+                Text = (await _doctorService.GetDoctorNameByIdAsync(doctorId.Value)) ?? "Selected Doctor"
+            }
+        };
+            }
+            else
+            {
+                model.Doctors = Enumerable.Empty<SelectListItem>();
+            }
+
             return View(model);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
