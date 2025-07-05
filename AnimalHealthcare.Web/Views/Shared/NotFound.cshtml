@@ -1,0 +1,9 @@
+﻿@{
+    ViewData["Title"] = "Not Found";
+    var errorMessage = ViewData["ErrorMessage"] as string;
+}
+
+<h2 class="text-danger">Oops! Something went wrong.</h2>
+<p class="text-primary fw-semibold">@errorMessage</p>
+
+<a asp-controller="Home" asp-action="Index" class="btn btn-primary">Go to Home</a>

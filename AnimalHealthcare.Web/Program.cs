@@ -1,5 +1,3 @@
-using AnimalHealthcare.Data;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 namespace AnimalHealthcare.Web
 {
@@ -41,6 +39,7 @@ namespace AnimalHealthcare.Web
             builder.Services.AddScoped<IAnimalService, AnimalService>();
             builder.Services.AddScoped<IAppointmentService, AppointmentService>();
             builder.Services.AddScoped<IDoctorService, DoctorService>();
+            builder.Services.AddScoped<IAnimalClinicService, AnimalClinicService>();
 
             builder.Services.AddControllersWithViews();
 
@@ -53,6 +52,7 @@ namespace AnimalHealthcare.Web
             else
             {
                 app.UseExceptionHandler("/Home/Error");
+                app.UseStatusCodePagesWithReExecute("/Home/HandleStatusCode", "?code={0}");
                 app.UseHsts();
             }
 

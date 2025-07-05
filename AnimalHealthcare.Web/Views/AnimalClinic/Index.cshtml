@@ -1,0 +1,29 @@
+﻿@model AnimalHealthcare.Web.ViewModels.AnimalClinic.AnimalClinicListViewModel
+
+@{
+    ViewData["Title"] = "Explore Clinics";
+}
+
+<h2 class="mb-4">Explore Clinics</h2>
+
+@foreach (var clinic in Model.Clinics)
+{
+    <div class="card mb-4 shadow-sm">
+        <div class="row g-0 align-items-center">
+            <div class="col-md-2 p-2">
+                <img src="@clinic.ImageUrl" alt="Clinic image" class="img-fluid rounded-start" style="max-height: 100px; object-fit: cover;" />
+            </div>
+            <div class="col-md-7">
+                <div class="card-body">
+                    <h5 class="card-title mb-1">@clinic.Name</h5>
+                    <p class="card-text mb-0"><strong>Address:</strong> @clinic.Address</p>
+                    <p class="card-text mb-0"><strong>Phone:</strong> @clinic.PhoneNumber</p>
+                </div>
+            </div>
+            <div class="col-md-3 text-end pe-3">
+                <a asp-action="Details" asp-route-id="@clinic.Id" class="btn btn-outline-primary btn-sm">Details</a>
+            </div>
+        </div>
+    </div>
+}
+
