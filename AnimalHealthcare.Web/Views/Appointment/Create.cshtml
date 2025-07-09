@@ -9,13 +9,6 @@
 {
     <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
 }
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @TempData["SuccessMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
 
 <form asp-action="Create" method="post">
     @Html.AntiForgeryToken()
@@ -32,9 +25,8 @@
         <label asp-for="ProcedureId" class="form-label fw-bold text-primary"></label>
         @if (Model.Procedures.Count() == 1)
         {
-            <!-- Show as read-only if preselected -->
             <input type="text" class="form-control" value="@Model.Procedures.First().Text" disabled />
-            <input type="hidden" asp-for="ProcedureId" id="procedureDropdown" />
+            <input type="hidden" name="ProcedureId" value="@Model.Procedures.First().Value" />
         }
         else
         {
@@ -42,16 +34,14 @@
                 <option disabled selected>-- Select Procedure --</option>
             </select>
         }
-        <span asp-validation-for="ProcedureId" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
         <label asp-for="DoctorId" class="form-label"></label>
         @if (Model.Doctors.Count() == 1)
         {
-            <!-- Show as read-only if preselected -->
             <input type="text" class="form-control" value="@Model.Doctors.First().Text" disabled />
-            <input type="hidden" asp-for="DoctorId" id="doctorDropdown" />
+            <input type="hidden" name="DoctorId" value="@Model.Doctors.First().Value" />
         }
         else
         {
@@ -59,7 +49,6 @@
         }
         <span asp-validation-for="DoctorId" class="text-danger"></span>
     </div>
-
 
     <div class="mb-3">
         <label asp-for="Date" class="form-label fw-bold text-primary"></label>
@@ -85,8 +74,20 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        function getProcedureId() {
+            const dropdown = document.getElementById("procedureDropdown");
+            if (!dropdown) return $('[name="ProcedureId"]').val();
+            return $(dropdown).val();
+        }
+
+        function getDoctorId() {
+            const dropdown = document.getElementById("doctorDropdown");
+            if (!dropdown) return $('[name="DoctorId"]').val();
+            return $(dropdown).val();
+        }
+
         function loadDoctors() {
-            const procedureId = $('#procedureDropdown').val();
+            const procedureId = getProcedureId();
             if (!procedureId) return;
 
             $.getJSON(`/Appointment/GetDoctorsByProcedure?procedureId=${procedureId}`, function (data) {
@@ -99,7 +100,7 @@
         }
 
         function loadTimeSlots() {
-            const doctorId = $('#doctorDropdown').val();
+            const doctorId = getDoctorId();
             const date = $('#datePicker').val();
             if (!doctorId || !date) return;
 
@@ -112,34 +113,28 @@
             });
         }
 
-        $('#procedureDropdown').on('change', function () {
-            loadDoctors();
-            $('#doctorDropdown').empty().append(`<option disabled selected>-- Select Doctor --</option>`);
-            $('#timeSlotDropdown').empty().append(`<option disabled selected>-- Select Time --</option>`);
-        });
-
-        $('#doctorDropdown, #datePicker').on('change', function () {
-            loadTimeSlots();
-        });
-
-                $(document).ready(function () {
-            const doctorInput = $('[name="DoctorId"]');
-            const doctorId = doctorInput.val();
+        $(document).ready(function () {
+            const procedureId = getProcedureId();
+            const doctorId = getDoctorId();
             const date = $('#datePicker').val();
 
-            const hasSingleDoctor = doctorInput.length > 0 && $('#doctorDropdown').length === 0;
-
-            if (hasSingleDoctor && doctorId && date) {
-                $.getJSON(`/Appointment/GetAvailableTimeSlots?doctorId=${doctorId}&date=${date}`, function (data) {
-                    const dropdown = $('#timeSlotDropdown');
-                    dropdown.empty().append(`<option disabled selected>-- Select Time --</option>`);
-                    $.each(data, function (i, time) {
-                        dropdown.append(`<option value="${time.value}">${time.text}</option>`);
-                    });
-                });
+            if (procedureId && $('#procedureDropdown').length === 0) {
+                loadDoctors();
             }
+
+            if (doctorId && date) {
+                loadTimeSlots();
+            }
+
+            $('#procedureDropdown').on('change', function () {
+                loadDoctors();
+                $('#doctorDropdown').empty().append(`<option disabled selected>-- Select Doctor --</option>`);
+                $('#timeSlotDropdown').empty().append(`<option disabled selected>-- Select Time --</option>`);
+            });
+
+            $('#doctorDropdown, #datePicker').on('change', function () {
+                loadTimeSlots();
+            });
         });
-
-
     </script>
 }

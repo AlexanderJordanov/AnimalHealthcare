@@ -7,6 +7,7 @@
         public string Specialization { get; set; } = null!;
         public int YearsOfExperience { get; set; }
         public string PhoneNumber { get; set; } = null!;
+        public string ProceduresPerformed { get; set; } = string.Empty;
         public string ProfileImageUrl { get; set; } = null!;
 
         // Clinic info

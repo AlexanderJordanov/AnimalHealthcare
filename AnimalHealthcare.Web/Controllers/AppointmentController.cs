@@ -39,34 +39,9 @@ namespace AnimalHealthcare.Web.Controllers
 
             var model = await _appointmentService.BuildCreateAppointmentViewModelAsync(userId, doctorId, procedureId);
 
-            if (doctorId.HasValue)
-            {
-                model.DoctorId = doctorId.Value;
-                model.Doctors = new List<SelectListItem>
-        {
-            new SelectListItem
-            {
-                Value = doctorId.ToString(),
-                Text = await _doctorService.GetDoctorNameByIdAsync(doctorId.Value) ?? "Selected Doctor"
-            }
-        };
-            }
-
-            if (procedureId.HasValue)
-            {
-                model.ProcedureId = procedureId.Value;
-                model.Procedures = new List<SelectListItem>
-        {
-            new SelectListItem
-            {
-                Value = procedureId.ToString(),
-                Text = await _procedureService.GetProcedureNameByIdAsync(procedureId.Value) ?? "Selected Procedure"
-            }
-        };
-            }
-
             return View(model);
         }
+
 
 
         [HttpPost]
@@ -78,11 +53,27 @@ namespace AnimalHealthcare.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                // Repopulate dropdowns in case of error
-                model = await _appointmentService.BuildCreateAppointmentViewModelAsync(userId);
-                model.Doctors = await _doctorService.GetDoctorsByProcedureAsync(model.ProcedureId);
-                model.TimeSlots = await _appointmentService.GetAvailableTimeSlotsAsync(model.DoctorId, model.Date);
-                return View(model);
+                // Rebuild dropdowns in case of validation failure
+                var rebuiltModel = await _appointmentService.BuildCreateAppointmentViewModelAsync(
+                    userId,
+                    model.DoctorId != 0 ? model.DoctorId : null,
+                    model.ProcedureId != 0 ? model.ProcedureId : null
+                );
+
+                // Keep selected values
+                rebuiltModel.AnimalId = model.AnimalId;
+                rebuiltModel.DoctorId = model.DoctorId;
+                rebuiltModel.ProcedureId = model.ProcedureId;
+                rebuiltModel.Date = model.Date;
+                rebuiltModel.TimeSlot = model.TimeSlot;
+
+                // Populate time slots manually
+                if (model.DoctorId != 0 && model.Date != default)
+                {
+                    rebuiltModel.TimeSlots = await _appointmentService.GetAvailableTimeSlotsAsync(model.DoctorId, model.Date);
+                }
+
+                return View(rebuiltModel);
             }
 
             var success = await _appointmentService.CreateAppointmentAsync(model, userId);
@@ -91,10 +82,11 @@ namespace AnimalHealthcare.Web.Controllers
                 TempData["ErrorMessage"] = "Failed to create appointment. Please try again.";
                 return RedirectToAction("Create");
             }
-            
+
             TempData["SuccessMessage"] = "Appointment created successfully!";
             return RedirectToAction("MyAppointments");
         }
+
 
         [HttpGet]
         public async Task<IActionResult> GetDoctorsByProcedure(int procedureId)

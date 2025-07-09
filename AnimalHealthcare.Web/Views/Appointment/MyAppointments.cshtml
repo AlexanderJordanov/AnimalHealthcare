@@ -5,6 +5,14 @@
 
 <h2 class="text-primary">My Appointments</h2>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 @if (!Model.Any())
 {
     <div class="alert alert-info">You have no appointments.</div>

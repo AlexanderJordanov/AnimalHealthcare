@@ -44,10 +44,35 @@ namespace AnimalHealthcare.Services.Core
             IEnumerable<SelectListItem> procedures = Enumerable.Empty<SelectListItem>();
             IEnumerable<SelectListItem> doctors = Enumerable.Empty<SelectListItem>();
 
-            if (doctorId.HasValue)
+            if (doctorId.HasValue && procedureId.HasValue)
             {
+                // When both doctor and procedure are known
+                var procedure = await _context.Procedures
+                    .Where(p => p.Id == procedureId.Value && !p.IsDeleted)
+                    .Select(p => new SelectListItem
+                    {
+                        Value = p.Id.ToString(),
+                        Text = p.Name
+                    })
+                    .ToListAsync();
+
+                var doctor = await _context.Doctors
+                    .Where(d => d.Id == doctorId.Value && !d.IsDeleted)
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d.Id.ToString(),
+                        Text = d.Name
+                    })
+                    .ToListAsync();
+
+                procedures = procedure;
+                doctors = doctor;
+            }
+            else if (doctorId.HasValue)
+            {
+                // When only doctor is known
                 procedures = await _context.DoctorProcedures
-                    .Where(dp => dp.DoctorId == doctorId.Value)
+                    .Where(dp => dp.DoctorId == doctorId.Value && !dp.Doctor.IsDeleted)
                     .Select(dp => new SelectListItem
                     {
                         Value = dp.ProcedureId.ToString(),
@@ -62,12 +87,13 @@ namespace AnimalHealthcare.Services.Core
                         Value = d.Id.ToString(),
                         Text = d.Name
                     })
-                    .FirstOrDefaultAsync();
+                    .ToListAsync();
 
-                doctors = doctor != null ? new List<SelectListItem> { doctor } : Enumerable.Empty<SelectListItem>();
+                doctors = doctor;
             }
             else if (procedureId.HasValue)
             {
+                // When only procedure is known
                 procedures = await _context.Procedures
                     .Where(p => p.Id == procedureId.Value && !p.IsDeleted)
                     .Select(p => new SelectListItem
@@ -89,6 +115,7 @@ namespace AnimalHealthcare.Services.Core
             }
             else
             {
+                // Default case: load all procedures only
                 procedures = await _context.Procedures
                     .Where(p => !p.IsDeleted)
                     .Select(p => new SelectListItem
@@ -112,6 +139,7 @@ namespace AnimalHealthcare.Services.Core
 
 
 
+
         public async Task<List<SelectListItem>> GetAvailableTimeSlotsAsync(int doctorId, DateTime date)
         {
             // 1. Skip weekends
@@ -125,35 +153,32 @@ namespace AnimalHealthcare.Services.Core
 
             // 2. Define standard working time slots (excluding lunch break)
             var workingSlots = new List<string>
-            {
-                "08:00", "08:30", "09:00", "09:30",
-                "10:00", "10:30", "11:00", "11:30",
-                "13:00", "13:30", "14:00", "14:30",
-                "15:00", "15:30", "16:00", "16:30"
-            };
+                {
+                    "08:00", "08:30", "09:00", "09:30",
+                    "10:00", "10:30", "11:00", "11:30",
+                    "13:00", "13:30", "14:00", "14:30",
+                    "15:00", "15:30", "16:00", "16:30"
+                };
 
             // 3. Remove past time slots if date is today
             if (date.Date == DateTime.Today)
             {
-                var now = DateTime.Now;
+                var now = DateTime.Now.TimeOfDay;
                 workingSlots = workingSlots
-                    .Where(t =>
-                    {
-                        var slotTime = DateTime.ParseExact(t, "HH:mm", null);
-                        return slotTime > now;
-                    })
+                    .Where(t => TimeSpan.Parse(t) > now)
                     .ToList();
             }
 
-            // 4. Get already booked time slots for that doctor on that date
+            // 4. Get already booked time slots for the doctor on the selected date
             var bookedSlots = await _context.Appointments
                 .Where(a => a.DoctorId == doctorId
-                            && !a.IsDeleted
-                            && a.AppointmentDateTime.Date == date.Date)
+                    && !a.IsDeleted
+                    && a.AppointmentDateTime >= date.Date
+                    && a.AppointmentDateTime < date.Date.AddDays(1))
                 .Select(a => a.AppointmentDateTime.ToString("HH:mm"))
                 .ToListAsync();
 
-            // 5. Remove booked slots
+            // 5. Filter out booked slots using TimeSpan for accurate comparison
             var availableSlots = workingSlots
                 .Where(t => !bookedSlots.Contains(t))
                 .Select(t => new SelectListItem { Value = t, Text = t })
@@ -171,6 +196,7 @@ namespace AnimalHealthcare.Services.Core
 
             return availableSlots;
         }
+
 
         public async Task<bool> CreateAppointmentAsync(CreateAppointmentViewModel model, string userId)
         {

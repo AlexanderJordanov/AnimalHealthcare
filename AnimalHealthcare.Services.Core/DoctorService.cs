@@ -103,9 +103,15 @@ namespace AnimalHealthcare.Services.Core
         {
             var doctor = await _context.Doctors
                 .Include(d => d.AnimalClinic)
+                .Include(d => d.DoctorProcedures)
+                    .ThenInclude(dp => dp.Procedure)
                 .FirstOrDefaultAsync(d => d.Id == doctorId && !d.IsDeleted);
 
             if (doctor == null) return null;
+
+            var procedures = doctor.DoctorProcedures
+                .Select(dp => dp.Procedure.Name)
+                .ToList();
 
             return new DoctorDetailsViewModel
             {
@@ -114,13 +120,14 @@ namespace AnimalHealthcare.Services.Core
                 YearsOfExperience = doctor.YearsOfExperience,
                 PhoneNumber = doctor.PhoneNumber,
                 ProfileImageUrl = doctor.ImageUrl,
-
                 ClinicName = doctor.AnimalClinic.Name,
                 ClinicAddress = doctor.AnimalClinic.Address,
                 ClinicPhoneNumber = doctor.AnimalClinic.PhoneNumber,
-                ClinicImageUrl = doctor.AnimalClinic.ImageUrl!
+                ClinicImageUrl = doctor.AnimalClinic.ImageUrl!,
+                ProceduresPerformed = string.Join(", ", procedures)
             };
         }
+
 
         public async Task<string?> GetDoctorNameByIdAsync(int doctorId)
         {

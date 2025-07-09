@@ -26,7 +26,7 @@ namespace AnimalHealthcare.Web.ViewModels.Appointment
         [Display(Name = "Select Time")]
         public string TimeSlot { get; set; } = null!;
 
-        // For dropdown population
+        // Dropdown data
         public IEnumerable<SelectListItem> UserPets { get; set; } = new List<SelectListItem>();
         public IEnumerable<SelectListItem> Procedures { get; set; } = new List<SelectListItem>();
         public IEnumerable<SelectListItem> Doctors { get; set; } = new List<SelectListItem>();
@@ -34,5 +34,10 @@ namespace AnimalHealthcare.Web.ViewModels.Appointment
 
         public DateTime MinDate => DateTime.Today;
         public DateTime MaxDate => DateTime.Today.AddMonths(6);
+
+        // Helper flags
+        public bool IsSingleProcedure => Procedures?.Count() == 1;
+        public bool IsSingleDoctor => Doctors?.Count() == 1;
     }
+
 }
