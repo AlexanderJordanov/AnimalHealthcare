@@ -23,23 +23,46 @@ namespace AnimalHealthcare.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> MyAppointments()
         {
-            var userId = GetUserId();
-            if (userId == null) return Unauthorized();
+            try
+            {
+                var userId = GetUserId();
+                if (userId == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
+                }
 
-            var appointments = await _appointmentService.GetAppointmentsByUserIdAsync(userId);
+                var appointments = await _appointmentService.GetAppointmentsByUserIdAsync(userId);
 
-            return View(appointments);
+                return View(appointments);
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> Create(int? doctorId = null, int? procedureId = null)
         {
-            var userId = GetUserId();
-            if (userId == null) return Unauthorized();
+            try
+            {
+                var userId = GetUserId();
+                if (userId == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
+                }
 
-            var model = await _appointmentService.BuildCreateAppointmentViewModelAsync(userId, doctorId, procedureId);
+                var model = await _appointmentService.BuildCreateAppointmentViewModelAsync(userId, doctorId, procedureId);
 
-            return View(model);
+                return View(model);
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }
+
         }
 
 
@@ -48,102 +71,180 @@ namespace AnimalHealthcare.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateAppointmentViewModel model)
         {
-            var userId = GetUserId();
-            if (userId == null) return Unauthorized();
-
-            if (!ModelState.IsValid)
+            try
             {
-                // Rebuild dropdowns in case of validation failure
-                var rebuiltModel = await _appointmentService.BuildCreateAppointmentViewModelAsync(
-                    userId,
-                    model.DoctorId != 0 ? model.DoctorId : null,
-                    model.ProcedureId != 0 ? model.ProcedureId : null
-                );
-
-                // Keep selected values
-                rebuiltModel.AnimalId = model.AnimalId;
-                rebuiltModel.DoctorId = model.DoctorId;
-                rebuiltModel.ProcedureId = model.ProcedureId;
-                rebuiltModel.Date = model.Date;
-                rebuiltModel.TimeSlot = model.TimeSlot;
-
-                // Populate time slots manually
-                if (model.DoctorId != 0 && model.Date != default)
+                var userId = GetUserId();
+                if (userId == null)
                 {
-                    rebuiltModel.TimeSlots = await _appointmentService.GetAvailableTimeSlotsAsync(model.DoctorId, model.Date);
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
                 }
 
-                return View(rebuiltModel);
-            }
+                if (!ModelState.IsValid)
+                {
+                    // Rebuild dropdowns in case of validation failure
+                    var rebuiltModel = await _appointmentService.BuildCreateAppointmentViewModelAsync(
+                        userId,
+                        model.DoctorId != 0 ? model.DoctorId : null,
+                        model.ProcedureId != 0 ? model.ProcedureId : null
+                    );
 
-            var success = await _appointmentService.CreateAppointmentAsync(model, userId);
-            if (!success)
+                    // Keep selected values
+                    rebuiltModel.AnimalId = model.AnimalId;
+                    rebuiltModel.DoctorId = model.DoctorId;
+                    rebuiltModel.ProcedureId = model.ProcedureId;
+                    rebuiltModel.Date = model.Date;
+                    rebuiltModel.TimeSlot = model.TimeSlot;
+
+                    // Populate time slots manually
+                    if (model.DoctorId != 0 && model.Date != default)
+                    {
+                        rebuiltModel.TimeSlots = await _appointmentService.GetAvailableTimeSlotsAsync(model.DoctorId, model.Date);
+                    }
+
+                    return View(rebuiltModel);
+                }
+
+                var success = await _appointmentService.CreateAppointmentAsync(model, userId);
+                if (!success)
+                {
+                    TempData["ErrorMessage"] = "Failed to create appointment. Please try again.";
+                    return RedirectToAction("Create");
+                }
+
+                TempData["SuccessMessage"] = "Appointment created successfully!";
+                return RedirectToAction("MyAppointments");
+            }
+            catch (Exception)
             {
-                TempData["ErrorMessage"] = "Failed to create appointment. Please try again.";
-                return RedirectToAction("Create");
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
             }
-
-            TempData["SuccessMessage"] = "Appointment created successfully!";
-            return RedirectToAction("MyAppointments");
         }
 
 
         [HttpGet]
         public async Task<IActionResult> GetDoctorsByProcedure(int procedureId)
         {
-            var userId = GetUserId();
-            if (userId == null) return Unauthorized();
+            try
+            {
+                var userId = GetUserId();
+                if (userId == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
+                }
 
-            var doctors = await _doctorService.GetDoctorsByProcedureAsync(procedureId);
-            return Json(doctors);
+                var doctors = await _doctorService.GetDoctorsByProcedureAsync(procedureId);
+                return Json(doctors);
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }
+
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAvailableTimeSlots(int doctorId, DateTime date)
         {
-            var userId = GetUserId();
-            if (userId == null) return Unauthorized();
+            try
+            {
+                var userId = GetUserId();
+                if (userId == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
+                }
 
-            var timeSlots = await _appointmentService.GetAvailableTimeSlotsAsync(doctorId, date);
-            return Json(timeSlots);
+                var timeSlots = await _appointmentService.GetAvailableTimeSlotsAsync(doctorId, date);
+                return Json(timeSlots);
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }
+
         }
 
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var userId = GetUserId();
-            if (userId == null) return Unauthorized();
+            try
+            {
+                var userId = GetUserId();
+                if (userId == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
+                }
 
-            var model = await _appointmentService.GetAppointmentDetailsAsync(id, userId);
-            if (model == null) return Forbid();
 
-            return View(model);
+                var model = await _appointmentService.GetAppointmentDetailsAsync(id, userId);
+                if (model == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
+                }
+
+                return View(model);
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> Cancel(int id)
         {
-            var userId = GetUserId();
-            if (userId == null) return Unauthorized();
+            try
+            {
+                var userId = GetUserId();
+                if (userId == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
+                }
 
-            var model = await _appointmentService.BuildCancelAppointmentViewModelAsync(id, userId);
-            if (model == null) return NotFound();
+                var model = await _appointmentService.BuildCancelAppointmentViewModelAsync(id, userId);
+                if (model == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
+                }
 
-            return View(model);
+                return View(model);
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }           
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmCancel(int appointmentId)
         {
-            var userId = GetUserId();
-            if (userId == null) return Unauthorized();
+            try
+            {
+                var userId = GetUserId();
+                if (userId == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
+                }
 
-            var success = await _appointmentService.CancelAppointmentAsync(appointmentId, userId);
-            if (!success) return Forbid();
+                var success = await _appointmentService.CancelAppointmentAsync(appointmentId, userId);
+                if (!success)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
+                }
 
-            TempData["SuccessMessage"] = "Appointment successfully canceled.";
-            return RedirectToAction("MyAppointments");
+                TempData["SuccessMessage"] = "Appointment successfully canceled.";
+                return RedirectToAction("MyAppointments");
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }            
         }
     }
 }
