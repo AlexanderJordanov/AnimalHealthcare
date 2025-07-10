@@ -24,7 +24,7 @@ namespace AnimalHealthcare.Web.Controllers
             }
             catch (Exception)
             {
-                // Redirect to a general error page (e.g., Views/Shared/Error.cshtml)
+                Response.StatusCode = 500;
                 return RedirectToAction("Error", "Home");
             }           
         }
@@ -47,7 +47,7 @@ namespace AnimalHealthcare.Web.Controllers
             }
             catch (Exception)
             {
-                // Redirect to a general error page (e.g., Views/Shared/Error.cshtml)
+                Response.StatusCode = 500;
                 return RedirectToAction("Error", "Home");
             }          
         }
