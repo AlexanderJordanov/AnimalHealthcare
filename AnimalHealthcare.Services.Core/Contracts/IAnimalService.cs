@@ -17,6 +17,6 @@ namespace AnimalHealthcare.Services.Core.Contracts
 
         Task<EditPetViewModel?> BuildEditPetViewModelAsync(int id, string requestingUserId);
 
-        Task<bool> UpdateAnimalAsync(EditPetViewModel model, string requestingUserId);
+        Task<bool?> UpdateAnimalAsync(EditPetViewModel model, string requestingUserId);
     }
 }

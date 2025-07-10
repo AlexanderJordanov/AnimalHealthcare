@@ -17,16 +17,18 @@ namespace AnimalHealthcare.Web.Controllers
             Response.StatusCode = code;
 
             return code switch
-            {
-                404 => View("NotFound", ViewBagWith("The page you're looking for was not found.")),
-                400 => View("Error", ViewBagWith("Bad request. Please check your input.")),
-                _ => View("Error", ViewBagWith($"Unexpected error (Status Code: {code})."))
+            {               
+                400 => ReturnWithMessage("Bad request. Please check your input.", "Error"), // Bad request
+                401 => ReturnWithMessage("Unauthorized access. Please log in to continue.", "Error"), // Unauthorized
+                403 => ReturnWithMessage("You are not authorized to access this resource.", "Error"), // Forbidden
+                404 => ReturnWithMessage("The page you're looking for was not found.", "NotFound"), //Not found
+                _ => ReturnWithMessage($"Unexpected error (Status Code: {code}).", "Error") // Other errors
             };
 
-            ViewResult ViewBagWith(string message)
+            ViewResult ReturnWithMessage(string message, string viewName)
             {
                 ViewBag.ErrorMessage = message;
-                return View();
+                return View(viewName);
             }
         }
     }

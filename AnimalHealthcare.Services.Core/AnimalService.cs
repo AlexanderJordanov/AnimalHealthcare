@@ -44,6 +44,11 @@ namespace AnimalHealthcare.Services.Core
         /// <param name="model">The view model containing the animal's registration data.</param>
         public async Task RegisterAnimalAsync(string userId, RegisterPetViewModel model)
         {
+            if (string.IsNullOrWhiteSpace(model.Name) || string.IsNullOrWhiteSpace(model.Species))
+            {
+                throw new ArgumentException("Pet name and species are required.");
+            }
+
             // Create a new Animal entity using the provided model data
             var animal = new Animal
             {
@@ -116,11 +121,16 @@ namespace AnimalHealthcare.Services.Core
                 .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
 
             // If the animal does not exist, return false
-            if (animal == null) return false;
-
-            // If user validation is needed, ensure the requester owns the animal
-            if (requestingUserId != null && animal.UserProfileId != requestingUserId)
+            if (animal == null)
+            {
                 return false;
+            }
+                
+            // If user validation is needed, ensure the requester owns the animal
+            if (requestingUserId != null && animal.UserProfileId != requestingUserId) 
+            {
+                return false;
+            }
 
             // Remove all associated appointments from the database
             _context.Appointments.RemoveRange(animal.Appointments);
@@ -229,7 +239,7 @@ namespace AnimalHealthcare.Services.Core
         /// <c>true</c> if the update was applied successfully; 
         /// <c>false</c> if the pet wasn't found, wasn't owned by the user, or no changes were made.
         /// </returns>
-        public async Task<bool> UpdateAnimalAsync(EditPetViewModel model, string requestingUserId)
+        public async Task<bool?> UpdateAnimalAsync(EditPetViewModel model, string requestingUserId)
         {
             // Retrieve the animal by ID and ensure it is not marked as deleted
             var animal = await _context.Animals
@@ -238,7 +248,7 @@ namespace AnimalHealthcare.Services.Core
             // Ensure the animal exists and belongs to the requesting user
             if (animal == null || animal.UserProfileId != requestingUserId)
             {
-                return false;
+                return null; // Not found or unauthorized
             }
 
             // Return false early if the submitted values match the existing ones

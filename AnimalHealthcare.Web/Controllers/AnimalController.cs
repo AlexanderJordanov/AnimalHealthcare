@@ -16,109 +16,197 @@ namespace AnimalHealthcare.Web.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            var model = new RegisterPetViewModel();
-            return View(model);
+            try
+            {
+                var model = new RegisterPetViewModel();
+                return View(model);
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }           
         }
 
         [HttpPost]
         public async Task<IActionResult> Register(RegisterPetViewModel model)
         {
-            if (!ModelState.IsValid)
+            try
             {
+                if (!ModelState.IsValid)
+                {
+                    return View(model);
+                }
+
+                var userId = GetUserId();
+                if (userId == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
+                }
+
+                await _animalService.RegisterAnimalAsync(userId, model);
+
+                TempData["SuccessMessage"] = "Pet registered successfully!";
+                return RedirectToAction("ViewProfile", "UserProfile");
+            }
+            catch (ArgumentException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
                 return View(model);
             }
-
-            var userId = GetUserId(); // From BaseController
-            if (userId == null) return Unauthorized();
-
-            await _animalService.RegisterAnimalAsync(userId, model);
-
-            TempData["SuccessMessage"] = "Pet registered successfully!";
-            return RedirectToAction("ViewProfile", "UserProfile");
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> Unregister(int id)
         {
-            var userId = GetUserId();
-            if (userId == null) return Unauthorized();
-
-            var animal = await _animalService.GetPetUnregisterViewModelByIdAsync(id, userId);
-            if (animal == null)
+            try
             {
-                return Forbid(); // Or NotFound(), depending on whether you want to reveal existence
-            }
+                var userId = GetUserId();
+                if (userId == null) 
+                { 
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 401 }); 
+                }
 
-            return View(animal);
+                var animal = await _animalService.GetPetUnregisterViewModelByIdAsync(id, userId);
+                if (animal == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
+                }
+
+                return View(animal);
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }           
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UnregisterConfirmed(int id)
         {
-            var userId = GetUserId();
-            if (userId == null) return Unauthorized();
-
-            var success = await _animalService.UnregisterPetAsync(id, userId);
-            if (!success)
+            try
             {
-                return Forbid(); // or BadRequest if you prefer generic error
-            }
+                var userId = GetUserId();
+                if (userId == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
+                }
 
-            TempData["SuccessMessage"] = "Animal unregistered successfully.";
-            return RedirectToAction("ViewProfile", "UserProfile");
+                var success = await _animalService.UnregisterPetAsync(id, userId);
+                if (!success)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 400 });
+                }
+
+                TempData["SuccessMessage"] = "Animal unregistered successfully.";
+                return RedirectToAction("ViewProfile", "UserProfile");
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }           
         }
 
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var userId = GetUserId();
-            var model = await _animalService.GetAnimalDetailsViewModelAsync(id, userId);
-
-            if (model == null)
+            try
             {
-                return NotFound();
-            }
+                var userId = GetUserId();
 
-            return View(model);
+                if (userId == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
+                }
+
+                var model = await _animalService.GetAnimalDetailsViewModelAsync(id, userId);
+
+                if (model == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
+                }
+
+                return View(model);
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }           
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var userId = GetUserId();
-            if (userId == null) return Unauthorized();
+            try
+            {
+                var userId = GetUserId();
+                if (userId == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
+                }
 
-            var model = await _animalService.BuildEditPetViewModelAsync(id, userId);
-            if (model == null) return Forbid(); // Not the owner or not found
+                var model = await _animalService.BuildEditPetViewModelAsync(id, userId);
+                if (model == null) 
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 404 }); // Covers not found or not owned
+                }
 
-            return View(model);
+                return View(model);
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }         
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(EditPetViewModel model)
         {
-            var userId = GetUserId();
-            if (userId == null) return Unauthorized();
-
-            if (!ModelState.IsValid) return View(model);
-
-            var result = await _animalService.UpdateAnimalAsync(model, userId);
-
-            if (result == null)
+            try
             {
-                return Forbid(); // not authorized
-            }
+                var userId = GetUserId();
+                if (userId == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
+                }
 
-            if (result == false)
+                if (!ModelState.IsValid)
+                {
+                    return View(model);
+                }
+                    
+                var result = await _animalService.UpdateAnimalAsync(model, userId);
+
+                if (result == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
+                }
+
+                if (result == false)
+                {
+                    TempData["InfoMessage"] = "No changes were made to the pet information.";
+                    return View(model);
+                }
+
+                TempData["SuccessMessage"] = "Pet information updated successfully!";
+                return RedirectToAction("Details", new { id = model.Id });
+            }
+            catch (Exception)
             {
-                TempData["InfoMessage"] = "No changes were made to the pet information.";
-                return View(model);
-            }
-
-            TempData["SuccessMessage"] = "Pet information updated successfully!";
-            return RedirectToAction("Details", new { id = model.Id });
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }           
         }
     }
 }
