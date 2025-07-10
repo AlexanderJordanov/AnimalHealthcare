@@ -17,26 +17,39 @@ namespace AnimalHealthcare.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var model = await _clinicService.GetAllClinicsAsync();
-            return View(model);
+            try
+            {
+                var model = await _clinicService.GetAllClinicsAsync();
+                return View(model);
+            }
+            catch (Exception)
+            {
+                // Redirect to a general error page (e.g., Views/Shared/Error.cshtml)
+                return RedirectToAction("Error", "Home");
+            }           
         }
 
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var model = await _clinicService.GetClinicDetailsAsync(id);
-
-            if (model == null)
+            try
             {
-                // Option 1: Return built-in 404
-                //return NotFound();
+                var model = await _clinicService.GetClinicDetailsAsync(id);
 
-                // Option 2 (optional): Redirect to a custom error page
-                return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
+                if (model == null)
+                {
+                    // Redirect to a custom error page
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
+                }
+
+                return View(model);
             }
-
-            return View(model);
+            catch (Exception)
+            {
+                // Redirect to a general error page (e.g., Views/Shared/Error.cshtml)
+                return RedirectToAction("Error", "Home");
+            }          
         }
     }
 }

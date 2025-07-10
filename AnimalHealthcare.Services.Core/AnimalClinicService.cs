@@ -81,6 +81,5 @@ namespace AnimalHealthcare.Services.Core
 
             return clinic;
         }
-
     }
 }
