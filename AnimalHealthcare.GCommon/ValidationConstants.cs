@@ -8,6 +8,9 @@
             public const int SpecializationMaxLength = 100;
             public const int PhoneNumberMaxLength = 20;
             public const int ImageUrlMaxLength = 255;
+
+            public const int DefaultPage = 1;
+            public const int PageSize = 5;
         }
 
         public static class AnimalClinic

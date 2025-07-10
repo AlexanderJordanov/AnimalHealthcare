@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AnimalHealthcare.Web.Controllers
 {
+    using static AnimalHealthcare.GCommon.ValidationConstants.Doctor;
     public class DoctorController : BaseController
     {
         private readonly IDoctorService _doctorService;
@@ -16,21 +17,40 @@ namespace AnimalHealthcare.Web.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<IActionResult> Index(string? sortBy, string? filterBy, int page = 1)
+        public async Task<IActionResult> Index(string? sortBy, string? filterBy, int page = DefaultPage)
         {
-            const int pageSize = 5;
-            var model = await _doctorService.GetDoctorsAsync(page, pageSize, sortBy, filterBy);
-            return View(model);
+            try
+            {
+                var model = await _doctorService.GetDoctorsAsync(page, PageSize, sortBy, filterBy);
+                return View(model);
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }
+
         }
 
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var doctor = await _doctorService.GetDoctorDetailsAsync(id);
-            if (doctor == null) return NotFound();
+            try
+            {
+                var doctor = await _doctorService.GetDoctorDetailsAsync(id);
+                if (doctor == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
+                }
 
-            return View(doctor);
+                return View(doctor);
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }
         }
     }
 }
