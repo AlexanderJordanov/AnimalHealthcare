@@ -7,25 +7,27 @@ namespace AnimalHealthcare.Web.Controllers
         [Route("Home/Error")]
         public IActionResult Error()
         {
+            Response.StatusCode = 500;
             return View(); // Will use Views/Shared/Error.cshtml
         }
 
         [Route("Home/HandleStatusCode")]
         public IActionResult HandleStatusCode(int code)
         {
-            if (code == 404)
-            {
-                ViewBag.ErrorMessage = "The page you're looking for was not found.";
-                return View("NotFound");
-            }
-            if (code == 400)
-            {
-                ViewBag.ErrorMessage = "Bad request. Please check your input.";
-                return View("Error");
-            }
+            Response.StatusCode = code;
 
-            ViewBag.ErrorMessage = $"Unexpected error (Status Code: {code}).";
-            return View("Error");
+            return code switch
+            {
+                404 => View("NotFound", ViewBagWith("The page you're looking for was not found.")),
+                400 => View("Error", ViewBagWith("Bad request. Please check your input.")),
+                _ => View("Error", ViewBagWith($"Unexpected error (Status Code: {code})."))
+            };
+
+            ViewResult ViewBagWith(string message)
+            {
+                ViewBag.ErrorMessage = message;
+                return View();
+            }
         }
     }
 }
