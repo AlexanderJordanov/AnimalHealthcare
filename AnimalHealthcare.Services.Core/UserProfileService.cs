@@ -111,16 +111,16 @@ namespace AnimalHealthcare.Services.Core
         /// <param name="profilePictureUrl">The new profile picture URL (nullable to allow removal).</param>
         /// <param name="requestingUserId">The ID of the user making the request (used for authorization).</param>
         /// <returns>True if the update was successful; otherwise, false.</returns>
-        public async Task<bool> UpdateProfilePictureAsync(string profileId, string? profilePictureUrl, string requestingUserId)
+        public async Task<bool?> UpdateProfilePictureAsync(string profileId, string? profilePictureUrl, string requestingUserId)
         {
             // Authorization check: ensure the requesting user owns the profile
             if (profileId != requestingUserId)
-                return false;
+                return false; // Not authorized
 
             // Attempt to retrieve the profile from the database
             var profile = await _context.UserProfiles.FindAsync(profileId);
             if (profile == null)
-                return false;
+                return null; // Profile not found
 
             // Update the profile picture URL (or null it out)
             profile.ProfilePictureUrl = profilePictureUrl;
@@ -230,20 +230,20 @@ namespace AnimalHealthcare.Services.Core
         /// <param name="model">The view model containing the new full name.</param>
         /// <param name="requestingUserId">The ID of the user making the request (for authorization).</param>
         /// <returns>True if the update was successful; false otherwise.</returns>
-        public async Task<bool> UpdateFullNameAsync(string profileId, EditFullNameViewModel model, string requestingUserId)
+        public async Task<bool?> UpdateFullNameAsync(string profileId, EditFullNameViewModel model, string requestingUserId)
         {
             // Prevent users from modifying profiles that aren't their own
             if (profileId != requestingUserId)
-                return false;
+                return null; // Unauthorized
 
             // Attempt to retrieve the user profile
             var profile = await _context.UserProfiles.FindAsync(profileId);
-            if (profile == null)
-                return false;
+            if (profile == null) // Not found
+                return null;
 
             // If the new name is the same as the current one, no need to update
             if (profile.FullName == model.FullName)
-                return false;
+                return false; // No change
 
             // Update the full name and persist the change
             profile.FullName = model.FullName;
@@ -286,23 +286,23 @@ namespace AnimalHealthcare.Services.Core
         /// True if the update was successful; false if unauthorized or the profile was not found.
         /// Throws <see cref="InvalidOperationException"/> if the new phone number is the same as the current one.
         /// </returns>
-        public async Task<bool> UpdatePhoneNumberAsync(string profileId, EditPhoneNumberViewModel model, string requestingUserId)
+        public async Task<bool?> UpdatePhoneNumberAsync(string profileId, EditPhoneNumberViewModel model, string requestingUserId)
         {
             // Ensure that the user is only modifying their own profile
             if (profileId != requestingUserId)
-                return false;
+                return null; // Unauthorized
 
             // Attempt to fetch the profile from the database
             var profile = await _context.UserProfiles.FindAsync(profileId);
             if (profile == null)
-                return false;
+                return null; // Not found
 
             // Normalize empty or whitespace phone number to null
             var newPhone = string.IsNullOrWhiteSpace(model.PhoneNumber) ? null : model.PhoneNumber;
 
             // Prevent saving if the number hasn't changed
             if (profile.PhoneNumber == newPhone)
-                throw new InvalidOperationException("Phone number is unchanged.");
+                return false; // No change
 
             // Apply the update and save changes
             profile.PhoneNumber = newPhone;
@@ -373,7 +373,7 @@ namespace AnimalHealthcare.Services.Core
         /// <returns>
         /// True if deletion was successful; false otherwise.
         /// </returns>
-        public async Task<bool> DeleteUserProfileAsync(string targetUserId, string requestingUserId)
+        public async Task<bool?> DeleteUserProfileAsync(string targetUserId, string requestingUserId)
         {
             // Ensure that the user is trying to delete their own profile
             if (targetUserId != requestingUserId)
@@ -389,7 +389,7 @@ namespace AnimalHealthcare.Services.Core
             var user = await _userManager.FindByIdAsync(targetUserId);
 
             if (userProfile == null || user == null)
-                return false;
+                return null;
 
             // Soft-delete all animals and remove their appointments
             foreach (var animal in userProfile.Animals)
