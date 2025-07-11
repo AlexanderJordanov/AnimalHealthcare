@@ -17,22 +17,38 @@ namespace AnimalHealthcare.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var procedures = await _procedureService.GetAllProceduresAsync();
-            return View(procedures);
+            try
+            {
+                var procedures = await _procedureService.GetAllProceduresAsync();
+                return View(procedures);
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }
         }
 
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var model = await _procedureService.GetProcedureDetailsAsync(id);
-
-            if (model == null)
+            try
             {
-                return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
-            }
+                var model = await _procedureService.GetProcedureDetailsAsync(id);
 
-            return View(model);
+                if (model == null)
+                {
+                    return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
+                }
+
+                return View(model);
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = 500;
+                return RedirectToAction("Error", "Home");
+            }           
         }
     }
 }
