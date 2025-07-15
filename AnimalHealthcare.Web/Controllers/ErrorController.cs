@@ -24,7 +24,7 @@ namespace AnimalHealthcare.Web.Controllers
         /// <param name="code">The HTTP status code that triggered the error handler.</param>
         /// <returns>A view corresponding to the status code.</returns>
         [Route("Error/HandleStatusCode")]
-        public IActionResult HandleStatusCode(int code)
+        public IActionResult HandleStatusCode(int code = 404)
         {
             Response.StatusCode = code;
 
@@ -34,7 +34,7 @@ namespace AnimalHealthcare.Web.Controllers
                 401 => ReturnWithMessage("Unauthorized access. Please log in to continue.", "Unauthorized"),
                 403 => ReturnWithMessage("You are not authorized to access this resource.", "Forbidden"),
                 404 => ReturnWithMessage("The page you're looking for was not found.", "NotFound"),
-                _ => ReturnWithMessage($"Unexpected error (Status Code: {code}).", "Error")
+                500 => ReturnWithMessage($"Unexpected error.", "Error")
             };
 
             /// <summary>

@@ -176,13 +176,13 @@ namespace AnimalHealthcare.Services.Core
                 };
 
             // 3. Exclude past time slots if the selected date is today
-            if (date.Date == DateTime.Today)
-            {
-                var now = DateTime.Now.TimeOfDay;
-                workingSlots = workingSlots
-                    .Where(t => TimeSpan.Parse(t) > now)
-                    .ToList();
-            }
+            //if (date.Date == DateTime.Today)
+            //{
+            //    var now = DateTime.Now.TimeOfDay;
+            //    workingSlots = workingSlots
+            //        .Where(t => TimeSpan.Parse(t) > now)
+            //        .ToList();
+            //}
 
             // 4. Fetch already booked appointment times for that doctor on the selected date
             var bookedSlots = await _context.Appointments
@@ -285,7 +285,7 @@ namespace AnimalHealthcare.Services.Core
                 .Include(a => a.Doctor)
                     .ThenInclude(d => d.AnimalClinic)
                 .Include(a => a.Procedure)
-                .FirstOrDefaultAsync(a => a.Id == appointmentId);
+                .FirstOrDefaultAsync(a => a.Id == appointmentId && !a.IsDeleted);
 
             // 2. Check if appointment exists, is not deleted, and belongs to the user
             if (appointment == null || appointment.Animal.IsDeleted || appointment.Animal.UserProfileId != requestingUserId)

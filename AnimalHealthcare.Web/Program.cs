@@ -4,7 +4,7 @@ namespace AnimalHealthcare.Web
     using AnimalHealthcare.Services.Core;
     using AnimalHealthcare.Services.Core.Contracts;
     using Data;
-
+    using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
 
@@ -70,6 +70,7 @@ namespace AnimalHealthcare.Web
                 pattern: "{controller=Home}/{action=Index}/{id?}");
             app.MapRazorPages();
 
+            app.MapFallbackToController("HandleStatusCode", "Error");
             app.Run();
         }
     }
