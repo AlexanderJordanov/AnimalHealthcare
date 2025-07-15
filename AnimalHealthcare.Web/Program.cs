@@ -52,8 +52,8 @@ namespace AnimalHealthcare.Web
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
-                app.UseStatusCodePagesWithReExecute("/Home/HandleStatusCode", "?code={0}");
+                app.UseExceptionHandler("/Error");
+                app.UseStatusCodePagesWithReExecute("/Error/HandleStatusCode", "?code={0}");
                 app.UseHsts();
             }
 

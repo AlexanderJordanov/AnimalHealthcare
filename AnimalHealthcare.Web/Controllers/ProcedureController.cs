@@ -24,8 +24,7 @@ namespace AnimalHealthcare.Web.Controllers
             }
             catch (Exception)
             {
-                Response.StatusCode = 500;
-                return RedirectToAction("Error", "Home");
+                return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
             }
         }
 
@@ -46,8 +45,7 @@ namespace AnimalHealthcare.Web.Controllers
             }
             catch (Exception)
             {
-                Response.StatusCode = 500;
-                return RedirectToAction("Error", "Home");
+                return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
             }           
         }
     }

@@ -1,8 +1,7 @@
-﻿using AnimalHealthcare.Services.Core;
-using AnimalHealthcare.Services.Core.Contracts;
+﻿using AnimalHealthcare.Services.Core.Contracts;
 using AnimalHealthcare.Web.ViewModels.Appointment;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+
 
 
 namespace AnimalHealthcare.Web.Controllers
@@ -37,8 +36,7 @@ namespace AnimalHealthcare.Web.Controllers
             }
             catch (Exception)
             {
-                Response.StatusCode = 500;
-                return RedirectToAction("Error", "Home");
+                return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
             }
         }
 
@@ -59,8 +57,7 @@ namespace AnimalHealthcare.Web.Controllers
             }
             catch (Exception)
             {
-                Response.StatusCode = 500;
-                return RedirectToAction("Error", "Home");
+                return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
             }
 
         }
@@ -116,8 +113,7 @@ namespace AnimalHealthcare.Web.Controllers
             }
             catch (Exception)
             {
-                Response.StatusCode = 500;
-                return RedirectToAction("Error", "Home");
+                return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
             }
         }
 
@@ -138,8 +134,7 @@ namespace AnimalHealthcare.Web.Controllers
             }
             catch (Exception)
             {
-                Response.StatusCode = 500;
-                return RedirectToAction("Error", "Home");
+                return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
             }
 
         }
@@ -160,8 +155,7 @@ namespace AnimalHealthcare.Web.Controllers
             }
             catch (Exception)
             {
-                Response.StatusCode = 500;
-                return RedirectToAction("Error", "Home");
+                return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
             }
 
         }
@@ -188,8 +182,7 @@ namespace AnimalHealthcare.Web.Controllers
             }
             catch (Exception)
             {
-                Response.StatusCode = 500;
-                return RedirectToAction("Error", "Home");
+                return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
             }
         }
 
@@ -214,8 +207,7 @@ namespace AnimalHealthcare.Web.Controllers
             }
             catch (Exception)
             {
-                Response.StatusCode = 500;
-                return RedirectToAction("Error", "Home");
+                return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
             }           
         }
 
@@ -242,8 +234,7 @@ namespace AnimalHealthcare.Web.Controllers
             }
             catch (Exception)
             {
-                Response.StatusCode = 500;
-                return RedirectToAction("Error", "Home");
+                return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
             }            
         }
     }
