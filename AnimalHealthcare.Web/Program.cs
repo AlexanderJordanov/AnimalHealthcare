@@ -3,14 +3,17 @@ namespace AnimalHealthcare.Web
 {
     using AnimalHealthcare.Services.Core;
     using AnimalHealthcare.Services.Core.Contracts;
+    using AnimalHealthcare.Web.Infrastructure.Extension;
+    using AnimalHealthcare.Web.Infrastructure.Middlewares;
     using Data;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
+    using System.Threading.Tasks;
 
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
             
@@ -33,6 +36,7 @@ namespace AnimalHealthcare.Web
                     options.Password.RequireNonAlphanumeric = false;
                     options.Password.RequiredLength = 6;
                 })
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<AnimalHealthcareDbContext>();
 
             builder.Services.AddScoped<IUserProfileService, UserProfileService>();
@@ -62,16 +66,26 @@ namespace AnimalHealthcare.Web
 
             app.UseRouting();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                await ApplicationDbInitializer.SeedRolesAndAdminAsync(services);
+            }
+
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseMiddleware<AdminRedirectMiddleware>();
 
+            app.MapControllerRoute(
+               name: "areas",
+               pattern: "{area}/{controller=UserManagement}/{action=Index}/{id?}");
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
             app.MapRazorPages();
 
             app.MapFallbackToController("HandleStatusCode", "Error");
-            app.Run();
+            app.Run();         
         }
     }
 }

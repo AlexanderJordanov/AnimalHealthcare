@@ -51,7 +51,11 @@
                     <a asp-controller="Doctor" asp-action="Details" asp-route-id="@doctor.Id" class="btn btn-outline-primary btn-sm">Details</a>
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
-                        <a asp-controller="Appointment" asp-action="Create" asp-route-doctorId="@doctor.Id" class="btn btn-primary">Create Appointment</a>
+                        if (User.IsInRole("User"))
+                        {
+                            <a asp-controller="Appointment" asp-action="Create" asp-route-doctorId="@doctor.Id" class="btn btn-primary">Create Appointment</a>
+                        }
+                        
                     }
                 </div>
             </div>

@@ -170,7 +170,8 @@ namespace AnimalHealthcare.Web.Areas.Identity.Pages.Account
                     //}
                     //else
                     //{
-                        await _signInManager.SignInAsync(user, isPersistent: false);
+                    await _userManager.AddToRoleAsync(user, UserRole);
+                    await _signInManager.SignInAsync(user, isPersistent: false);
                         return LocalRedirect(returnUrl);
                     //}
                 }

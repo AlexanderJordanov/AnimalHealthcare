@@ -19,9 +19,13 @@
                 </a>
                 @if (User.Identity?.IsAuthenticated ?? false)
                 {
-                    <a asp-controller="Appointment" asp-action="Create" asp-route-procedureId="@procedure.Id" class="btn btn-primary btn-sm">
-                        Create Appointment
-                    </a>
+                    if (User.IsInRole("User"))
+                    {
+                        <a asp-controller="Appointment" asp-action="Create" asp-route-procedureId="@procedure.Id" class="btn btn-primary btn-sm">
+                            Create Appointment
+                        </a>
+                    }
+                    
                 }
             </div>
         </div>

@@ -51,6 +51,10 @@
             public const string FullNameRegex = @"^[a-zA-Z\s'-]+$";
             public const int EmailMaxLength = 100;
             public const int EmailMinLength = 5;
+
+            public const string AdminEmail = "admin@animalhealthcare.com";
+            public const string AdminRole = "Admin";
+            public const string UserRole = "User";
         }
 
 
