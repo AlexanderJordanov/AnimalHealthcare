@@ -1,0 +1,15 @@
+﻿@using AnimalHealthcare.Web.ViewModels.UserManagement
+@model AdminUnregisterAnimalViewModel
+
+<h2>Unregister Animal</h2>
+
+<p class="text-primary fs-5">Are you sure you want to unregister the animal <strong>@Model.Name</strong>?</p>
+<p class="text-primary fs-5">Species: @Model.Species</p>
+<p class="text-primary fs-5">Breed: @Model.Breed</p>
+
+<form asp-action="UnregisterAnimalConfirmed" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-danger">Yes, Unregister</button>
+    <a asp-action="Details" asp-controller="UserManagement" asp-route-id="@Model.UserProfileId" class="btn btn-secondary">Cancel</a>
+</form>

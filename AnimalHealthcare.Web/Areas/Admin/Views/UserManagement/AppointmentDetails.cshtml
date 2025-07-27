@@ -1,0 +1,26 @@
+﻿@using AnimalHealthcare.Web.ViewModels.UserManagement
+@model AdminAppointmentDetailsViewModel
+
+@{
+    ViewData["Title"] = "Appointment Details";
+}
+
+<h2 class="mb-4">Appointment for @Model.AnimalName</h2>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <p><strong>Date & Time:</strong> @Model.AppointmentDateTime.ToString("f")</p>
+
+        <h5 class="mt-4">Doctor</h5>
+        <p><strong>Name:</strong> @Model.DoctorName</p>
+        <p><strong>Specialization:</strong> @Model.DoctorSpecialization</p>
+        <p><strong>Clinic:</strong> @Model.ClinicName</p>
+
+        <h5 class="mt-4">Procedure</h5>
+        <p><strong>Name:</strong> @Model.ProcedureName</p>
+        <p><strong>Description:</strong> @Model.ProcedureDescription</p>
+    </div>
+</div>
+
+<a asp-action="AnimalDetails" asp-route-id="@Model.AnimalId" class="btn btn-secondary">Back to Animal</a>
+

@@ -397,7 +397,10 @@ namespace AnimalHealthcare.Services.Core
             {
                 if (animal.Appointments.Any())
                 {
-                    _context.Appointments.RemoveRange(animal.Appointments);
+                    foreach (var appointment in animal.Appointments)
+                    {
+                        appointment.IsDeleted = true; // Soft-delete appointments
+                    }
                 }
 
                 animal.IsDeleted = true;

@@ -132,8 +132,12 @@ namespace AnimalHealthcare.Services.Core
                 return false;
             }
 
-            // Remove all associated appointments from the database
-            _context.Appointments.RemoveRange(animal.Appointments);
+            
+            foreach (var appointment in animal.Appointments)
+            {
+                // Mark each appointment as logically deleted
+                appointment.IsDeleted = true;
+            }
 
             // Mark the animal as logically deleted
             animal.IsDeleted = true;

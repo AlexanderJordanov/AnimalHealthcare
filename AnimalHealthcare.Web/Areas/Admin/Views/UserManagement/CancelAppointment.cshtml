@@ -1,0 +1,19 @@
+﻿@using AnimalHealthcare.Web.ViewModels.UserManagement
+@model AdminCancelAppointmentViewModel
+
+@{
+    ViewData["Title"] = "Cancel Appointment";
+}
+
+<h2>Cancel Appointment</h2>
+
+<p class="text-primary fs-5">Are you sure you want to cancel the appointment for <strong>@Model.AnimalName</strong> on <strong>@Model.AppointmentDateTime.ToString("f")</strong>?</p>
+
+<form asp-action="CancelAppointmentConfirmed" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    @Html.AntiForgeryToken()
+
+    <button type="submit" class="btn btn-danger">Yes, Cancel</button>
+    <a asp-action="AnimalDetails" asp-route-id="@Model.AnimalId" class="btn btn-secondary">Back</a>
+</form>
+

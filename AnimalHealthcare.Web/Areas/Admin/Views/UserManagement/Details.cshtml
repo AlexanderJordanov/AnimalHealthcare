@@ -34,10 +34,13 @@
                     <td>@pet.Species</td>
                     <td>@pet.Breed</td>
                     <td>
-                        <a asp-area="Admin" asp-controller="UserManagement" asp-action="PetDetails" asp-route-id="@pet.Id" class="btn btn-sm btn-primary">Details</a>
-                        <form asp-area="Admin" asp-controller="UserManagement" asp-action="UnregisterPet" asp-route-id="@pet.Id" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to unregister this pet?');">Unregister</button>
-                        </form>
+                        <a asp-area="Admin" asp-controller="UserManagement" asp-action="AnimalDetails" asp-route-id="@pet.Id" class="btn btn-sm btn-primary">Details</a>
+                        <a asp-action="UnregisterAnimal"
+                           asp-controller="UserManagement"
+                           asp-route-id="@pet.Id"
+                           class="btn btn-warning btn-sm">
+                            Unregister
+                        </a>
                     </td>
                 </tr>
             }
@@ -46,6 +49,6 @@
 }
 else
 {
-    <p class="text-muted">This user has no registered pets.</p>
+    <p class="text-primary fs-5">This user has no registered pets.</p>
 }
 
