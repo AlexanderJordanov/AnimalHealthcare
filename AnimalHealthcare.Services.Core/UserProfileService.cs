@@ -1,6 +1,7 @@
 ﻿using AnimalHealthcare.Data;
 using AnimalHealthcare.Data.Models;
 using AnimalHealthcare.Services.Core.Contracts;
+using AnimalHealthcare.Web.ViewModels.UserManagement;
 using AnimalHealthcare.Web.ViewModels.UserProfile;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

@@ -1,0 +1,46 @@
+﻿@using AnimalHealthcare.Web.ViewModels.UserManagement
+@model AdminProfilesViewModel
+
+<h2>Admin Profile</h2>
+<div class="row mb-4">
+    <div class="col-md-3">
+        <img src="@(!string.IsNullOrEmpty(Model.ProfilePictureUrl) ? Model.ProfilePictureUrl : "/images/default-profile.png")"
+             alt="Profile Picture"
+             class="img-thumbnail" />
+    </div>
+    <div class="col-md-9">
+        <p class="text-primary fs-5"><strong>Email:</strong> @Model.Email></p>
+        <p class="text-primary fs-5"><strong>Full Name:</strong> @Model.FullName</p>
+        <p class="text-primary fs-5"><strong>Phone Number:</strong> @(Model.PhoneNumber ?? "You have not added a phone number.")</p>
+        <p class="text-primary fs-5"><strong>Address:</strong> @(Model.Address ?? "You have not added an address.")</p>
+    </div>
+</div>
+
+<hr />
+
+<h2>All Users</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Full Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.Users)
+        {
+            <tr>
+                <td>@user.Email</td>
+                <td>@user.FullName</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@user.Id" class="btn btn-info btn-sm">Details</a>
+                    <form asp-action="DeleteUser" asp-route-id="@user.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

@@ -8,6 +8,7 @@ namespace AnimalHealthcare.Web
     using Data;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using System.Threading.Tasks;
 
@@ -45,8 +46,14 @@ namespace AnimalHealthcare.Web
             builder.Services.AddScoped<IDoctorService, DoctorService>();
             builder.Services.AddScoped<IAnimalClinicService, AnimalClinicService>();
             builder.Services.AddScoped<IProcedureService, ProcedureService>();
+            builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 
-            builder.Services.AddControllersWithViews();
+            builder.Services
+                .AddControllersWithViews()
+                .AddMvcOptions (opt =>
+                {
+                    opt.Filters.Add<AutoValidateAntiforgeryTokenAttribute>();
+                });
 
             WebApplication? app = builder.Build();
             
