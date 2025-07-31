@@ -1,5 +1,6 @@
 ﻿using AnimalHealthcare.Data;
 using AnimalHealthcare.Data.Models;
+using AnimalHealthcare.GCommon.Enums;
 using AnimalHealthcare.Services.Core.Contracts;
 using AnimalHealthcare.Web.ViewModels.UserManagement;
 using AnimalHealthcare.Web.ViewModels.UserProfile;
@@ -112,24 +113,29 @@ namespace AnimalHealthcare.Services.Core
         /// <param name="profilePictureUrl">The new profile picture URL (nullable to allow removal).</param>
         /// <param name="requestingUserId">The ID of the user making the request (used for authorization).</param>
         /// <returns>True if the update was successful; otherwise, false.</returns>
-        public async Task<bool?> UpdateProfilePictureAsync(string profileId, string? profilePictureUrl, string requestingUserId)
+        public async Task<ServiceOperationResult> UpdateProfilePictureAsync(string profileId, string? profilePictureUrl, string requestingUserId)
         {
-            // Authorization check: ensure the requesting user owns the profile
+            // 1. Authorization check
             if (profileId != requestingUserId)
-                return false; // Not authorized
+                return ServiceOperationResult.Unauthorized;
 
-            // Attempt to retrieve the profile from the database
+            // 2. Retrieve profile from DB
             var profile = await _context.UserProfiles.FindAsync(profileId);
             if (profile == null)
-                return null; // Profile not found
+                return ServiceOperationResult.NotFound;
 
-            // Update the profile picture URL (or null it out)
+            // 3. If no changes, short-circuit (optional)
+            if (profile.ProfilePictureUrl == profilePictureUrl)
+                return ServiceOperationResult.NoChange;
+
+            // 4. Apply update
             profile.ProfilePictureUrl = profilePictureUrl;
 
-            // Persist changes to the database
+            // 5. Save changes
             await _context.SaveChangesAsync();
-            return true;
+            return ServiceOperationResult.Success;
         }
+
 
         /// <summary>
         /// Builds the view model required to edit the user's email, with authorization validation.
@@ -168,38 +174,39 @@ namespace AnimalHealthcare.Services.Core
         /// - success: true if the update succeeded;
         /// - unchanged: true if the email was already the same and no update was needed.
         /// </returns>
-        public async Task<(bool success, bool unchanged)> UpdateEmailAsync(string profileId, EditEmailViewModel model, string requestingUserId)
+        public async Task<ServiceOperationResult> UpdateEmailAsync(string profileId, EditEmailViewModel model, string requestingUserId)
         {
-            // Ensure the requesting user is authorized
+            // Step 1: Authorization check
             if (profileId != requestingUserId)
-                return (false, false);
+                return ServiceOperationResult.Unauthorized;
 
-            // Find the user by ID
+            // Step 2: Try to find the user
             var user = await _userManager.FindByIdAsync(profileId);
             if (user == null)
-                return (false, false);
+                return ServiceOperationResult.NotFound;
 
-            // If the email hasn't changed, return as successful but unchanged
+            // Step 3: Check if email is unchanged
             if (user.Email == model.Email)
-                return (true, true);
+                return ServiceOperationResult.NoChange;
 
-            // Generate a token and attempt to change the email
+            // Step 4: Attempt email change
             var token = await _userManager.GenerateChangeEmailTokenAsync(user, model.Email);
             var result = await _userManager.ChangeEmailAsync(user, model.Email, token);
             if (!result.Succeeded)
-                return (false, false);
+                return ServiceOperationResult.Failed;
 
-            // Update the username to match the new email
+            // Step 5: Update username to match new email
             user.UserName = model.Email;
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
-                return (false, false);
+                return ServiceOperationResult.Failed;
 
-            // Refresh the sign-in session to reflect changes
+            // Step 6: Refresh sign-in to apply changes
             await _signInManager.RefreshSignInAsync(user);
 
-            return (true, false); // Successfully updated and email was changed
+            return ServiceOperationResult.Success;
         }
+
 
         /// <summary>
         /// Builds a view model for editing a user's full name, ensuring the requesting user is authorized.
@@ -231,27 +238,28 @@ namespace AnimalHealthcare.Services.Core
         /// <param name="model">The view model containing the new full name.</param>
         /// <param name="requestingUserId">The ID of the user making the request (for authorization).</param>
         /// <returns>True if the update was successful; false otherwise.</returns>
-        public async Task<bool?> UpdateFullNameAsync(string profileId, EditFullNameViewModel model, string requestingUserId)
+        public async Task<ServiceOperationResult> UpdateFullNameAsync(string profileId, EditFullNameViewModel model, string requestingUserId)
         {
-            // Prevent users from modifying profiles that aren't their own
+            // 1. Authorization check
             if (profileId != requestingUserId)
-                return null; // Unauthorized
+                return ServiceOperationResult.Unauthorized;
 
-            // Attempt to retrieve the user profile
+            // 2. Retrieve the profile
             var profile = await _context.UserProfiles.FindAsync(profileId);
-            if (profile == null) // Not found
-                return null;
+            if (profile == null)
+                return ServiceOperationResult.NotFound;
 
-            // If the new name is the same as the current one, no need to update
-            if (profile.FullName == model.FullName)
-                return false; // No change
+            // 3. Check if there's any actual change
+            if (profile.FullName.Trim() == model.FullName.Trim())
+                return ServiceOperationResult.NoChange;
 
-            // Update the full name and persist the change
-            profile.FullName = model.FullName;
+            // 4. Apply update and persist
+            profile.FullName = model.FullName.Trim();
             await _context.SaveChangesAsync();
 
-            return true;
+            return ServiceOperationResult.Success;
         }
+
 
         /// <summary>
         /// Builds the view model used for editing a user's phone number, 
@@ -287,29 +295,30 @@ namespace AnimalHealthcare.Services.Core
         /// True if the update was successful; false if unauthorized or the profile was not found.
         /// Throws <see cref="InvalidOperationException"/> if the new phone number is the same as the current one.
         /// </returns>
-        public async Task<bool?> UpdatePhoneNumberAsync(string profileId, EditPhoneNumberViewModel model, string requestingUserId)
+        public async Task<ServiceOperationResult> UpdatePhoneNumberAsync(string profileId, EditPhoneNumberViewModel model, string requestingUserId)
         {
-            // Ensure that the user is only modifying their own profile
+            // 1. Authorization check: users can only edit their own profile
             if (profileId != requestingUserId)
-                return null; // Unauthorized
+                return ServiceOperationResult.Unauthorized;
 
-            // Attempt to fetch the profile from the database
+            // 2. Retrieve the user profile
             var profile = await _context.UserProfiles.FindAsync(profileId);
             if (profile == null)
-                return null; // Not found
+                return ServiceOperationResult.NotFound;
 
-            // Normalize empty or whitespace phone number to null
+            // 3. Normalize phone number input
             var newPhone = string.IsNullOrWhiteSpace(model.PhoneNumber) ? null : model.PhoneNumber;
 
-            // Prevent saving if the number hasn't changed
+            // 4. Check if value is unchanged
             if (profile.PhoneNumber == newPhone)
-                return false; // No change
+                return ServiceOperationResult.NoChange;
 
-            // Apply the update and save changes
+            // 5. Apply update
             profile.PhoneNumber = newPhone;
             await _context.SaveChangesAsync();
 
-            return true;
+            // 6. Return success
+            return ServiceOperationResult.Success;
         }
 
         /// <summary>
@@ -344,26 +353,31 @@ namespace AnimalHealthcare.Services.Core
         /// - success: Indicates whether the update was successful.
         /// - unchanged: Indicates whether the submitted address was the same as the existing one.
         /// </returns>
-        public async Task<(bool success, bool unchanged)> UpdateAddressAsync(string profileId, EditAddressViewModel model, string requestingUserId)
+        public async Task<ServiceOperationResult> UpdateAddressAsync(string profileId, EditAddressViewModel model, string requestingUserId)
         {
-            // Ensure the requesting user is the owner of the profile
-            if (profileId != requestingUserId) return (false, false);
+            // Authorization check
+            if (profileId != requestingUserId)
+                return ServiceOperationResult.Unauthorized;
 
-            // Retrieve the user profile
+            // Retrieve the profile
             var profile = await _context.UserProfiles.FindAsync(profileId);
-            if (profile == null) return (false, false);
+            if (profile == null)
+                return ServiceOperationResult.NotFound;
 
-            // If the address hasn't changed, return success but unchanged
-            if (profile.Address == model.Address)
-            {
-                return (true, true);
-            }
+            // Normalize and compare
+            var newAddress = model.Address?.Trim();
+            var currentAddress = profile.Address?.Trim();
 
-            // Update the address and save changes
-            profile.Address = model.Address;
+            if (string.Equals(currentAddress, newAddress, StringComparison.Ordinal))
+                return ServiceOperationResult.NoChange;
+
+            // Apply the update
+            profile.Address = newAddress;
             await _context.SaveChangesAsync();
-            return (true, false);
+
+            return ServiceOperationResult.Success;
         }
+
 
         /// <summary>
         /// Deletes a user profile, its associated identity user, and all related animals and appointments.
@@ -374,52 +388,51 @@ namespace AnimalHealthcare.Services.Core
         /// <returns>
         /// True if deletion was successful; false otherwise.
         /// </returns>
-        public async Task<bool?> DeleteUserProfileAsync(string targetUserId, string requestingUserId)
+        public async Task<ServiceOperationResult> DeleteUserProfileAsync(string targetUserId, string requestingUserId)
         {
-            // Ensure that the user is trying to delete their own profile
+            // Step 1: Check if user is authorized to delete this profile
             if (targetUserId != requestingUserId)
-                return false;
+                return ServiceOperationResult.Unauthorized;
 
-            // Retrieve user profile along with animals and their appointments
+            // Step 2: Load user profile with related animals and appointments
             var userProfile = await _context.UserProfiles
                 .Include(p => p.Animals)
                 .ThenInclude(a => a.Appointments)
                 .FirstOrDefaultAsync(p => p.Id == targetUserId);
 
-            // Retrieve the identity user
+            // Step 3: Find the Identity user record
             var user = await _userManager.FindByIdAsync(targetUserId);
 
+            // Step 4: Return NotFound if either is missing
             if (userProfile == null || user == null)
-                return null;
+                return ServiceOperationResult.NotFound;
 
-            // Soft-delete all animals and remove their appointments
+            // Step 5: Soft-delete all related appointments and animals
             foreach (var animal in userProfile.Animals)
             {
-                if (animal.Appointments.Any())
+                foreach (var appointment in animal.Appointments)
                 {
-                    foreach (var appointment in animal.Appointments)
-                    {
-                        appointment.IsDeleted = true; // Soft-delete appointments
-                    }
+                    appointment.IsDeleted = true;
                 }
 
                 animal.IsDeleted = true;
             }
 
-            // Remove the user profile from the database
+            // Step 6: Remove the user profile from the database
             _context.UserProfiles.Remove(userProfile);
 
-            // Delete the Identity user account
+            // Step 7: Delete the Identity user account
             var result = await _userManager.DeleteAsync(user);
             if (!result.Succeeded)
-                return false;
+                return ServiceOperationResult.Failed;
 
-            // Log out the user after deletion
+            // Step 8: Sign out the user (log them out)
             await _signInManager.SignOutAsync();
 
-            // Persist changes to the database
+            // Step 9: Save all changes to the database
             await _context.SaveChangesAsync();
-            return true;
+
+            return ServiceOperationResult.Success;
         }
     }
 }

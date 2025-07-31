@@ -1,4 +1,5 @@
 ﻿using AnimalHealthcare.Data.Models;
+using AnimalHealthcare.GCommon.Enums;
 using AnimalHealthcare.Web.ViewModels.UserManagement;
 using AnimalHealthcare.Web.ViewModels.UserProfile;
 
@@ -14,25 +15,25 @@ namespace AnimalHealthcare.Services.Core.Contracts
 
         UserProfileViewModel BuildUserProfileViewModel(UserProfile profile, List<AnimalSummaryViewModel> animals);
 
-        Task<bool?> UpdateProfilePictureAsync(string profileId, string? profilePictureUrl, string requestingUserId);
+        Task<ServiceOperationResult> UpdateProfilePictureAsync(string profileId, string? profilePictureUrl, string requestingUserId);
 
         Task<EditEmailViewModel?> BuildEditEmailViewModelAsync(string profileId, string requestingUserId);
 
-        Task<(bool success, bool unchanged)> UpdateEmailAsync(string profileId, EditEmailViewModel model, string requestingUserId);
+        Task<ServiceOperationResult> UpdateEmailAsync(string profileId, EditEmailViewModel model, string requestingUserId);
 
         Task<EditFullNameViewModel?> BuildEditFullNameViewModelAsync(string profileId, string requestingUserId);
 
-        Task<bool?> UpdateFullNameAsync(string profileId, EditFullNameViewModel model, string requestingUserId);
+        Task<ServiceOperationResult> UpdateFullNameAsync(string profileId, EditFullNameViewModel model, string requestingUserId);
 
         Task<EditPhoneNumberViewModel?> BuildEditPhoneNumberViewModelAsync(string profileId, string requestingUserId);
 
-        Task<bool?> UpdatePhoneNumberAsync(string profileId, EditPhoneNumberViewModel model, string requestingUserId);
+        Task<ServiceOperationResult> UpdatePhoneNumberAsync(string profileId, EditPhoneNumberViewModel model, string requestingUserId);
 
         Task<EditAddressViewModel?> BuildEditAddressViewModelAsync(string profileId, string requestingUserId);
 
-        Task<(bool success, bool unchanged)> UpdateAddressAsync(string profileId, EditAddressViewModel model, string requestingUserId);
+        Task<ServiceOperationResult> UpdateAddressAsync(string profileId, EditAddressViewModel model, string requestingUserId);
 
-        Task<bool?> DeleteUserProfileAsync(string targetUserId, string requestingUserId);
+        Task<ServiceOperationResult> DeleteUserProfileAsync(string targetUserId, string requestingUserId);
     }
 }
 

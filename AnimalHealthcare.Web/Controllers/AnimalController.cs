@@ -1,4 +1,5 @@
-﻿using AnimalHealthcare.Services.Core.Contracts;
+﻿using AnimalHealthcare.GCommon.Enums;
+using AnimalHealthcare.Services.Core.Contracts;
 using AnimalHealthcare.Web.ViewModels.Animal;
 using Microsoft.AspNetCore.Mvc;
 
@@ -96,20 +97,31 @@ namespace AnimalHealthcare.Web.Controllers
                     return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
                 }
 
-                var success = await _animalService.UnregisterPetAsync(id, userId);
-                if (!success)
+                var result = await _animalService.UnregisterPetAsync(id, userId);
+
+                switch (result)
                 {
-                    return RedirectToAction("HandleStatusCode", "Error", new { code = 400 });
+                    case ServiceOperationResult.Success:
+                        TempData["SuccessMessage"] = "Animal unregistered successfully.";
+                        return RedirectToAction("ViewProfile", "UserProfile");
+
+                    case ServiceOperationResult.NotFound:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
+
+                    case ServiceOperationResult.Unauthorized:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
+
+                    default:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
                 }
 
-                TempData["SuccessMessage"] = "Animal unregistered successfully.";
-                return RedirectToAction("ViewProfile", "UserProfile");
             }
             catch (Exception)
             {
                 return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
-            }           
+            }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Details(int id)
@@ -179,27 +191,31 @@ namespace AnimalHealthcare.Web.Controllers
                 {
                     return View(model);
                 }
-                    
+
                 var result = await _animalService.UpdateAnimalAsync(model, userId);
 
-                if (result == null)
+                switch (result)
                 {
-                    return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
-                }
+                    case ServiceOperationResult.Success:
+                        TempData["SuccessMessage"] = "Pet information updated successfully!";
+                        return RedirectToAction("ViewProfile", "UserProfile");
 
-                if (result == false)
-                {
-                    TempData["InfoMessage"] = "No changes were made to the pet information.";
-                    return View(model);
-                }
+                    case ServiceOperationResult.NoChange:
+                        TempData["InfoMessage"] = "No changes were made to the pet information.";
+                        return View(model);
 
-                TempData["SuccessMessage"] = "Pet information updated successfully!";
-                return RedirectToAction("Details", new { id = model.Id });
+                    case ServiceOperationResult.Unauthorized:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
+
+                    default:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
+                }
             }
             catch (Exception)
             {
                 return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
-            }           
+            }
         }
+
     }
 }

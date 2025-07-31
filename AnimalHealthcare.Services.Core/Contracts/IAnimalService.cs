@@ -1,4 +1,5 @@
-﻿using AnimalHealthcare.Web.ViewModels.Animal;
+﻿using AnimalHealthcare.GCommon.Enums;
+using AnimalHealthcare.Web.ViewModels.Animal;
 using AnimalHealthcare.Web.ViewModels.UserProfile;
 
 namespace AnimalHealthcare.Services.Core.Contracts
@@ -11,12 +12,12 @@ namespace AnimalHealthcare.Services.Core.Contracts
 
         Task<UnregisterPetViewModel?> GetPetUnregisterViewModelByIdAsync(int id, string? requestingUserId = null);
 
-        Task<bool> UnregisterPetAsync(int id, string? requestingUserId = null);
+        Task<ServiceOperationResult> UnregisterPetAsync(int id, string? requestingUserId = null);
 
         Task<AnimalDetailsViewModel?> GetAnimalDetailsViewModelAsync(int animalId, string? requestingUserId = null);
 
         Task<EditPetViewModel?> BuildEditPetViewModelAsync(int id, string requestingUserId);
 
-        Task<bool?> UpdateAnimalAsync(EditPetViewModel model, string requestingUserId);
+        Task<ServiceOperationResult> UpdateAnimalAsync(EditPetViewModel model, string requestingUserId);
     }
 }

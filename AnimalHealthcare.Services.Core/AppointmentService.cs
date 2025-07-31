@@ -1,9 +1,10 @@
 ﻿using AnimalHealthcare.Data;
 using AnimalHealthcare.Data.Models;
+using AnimalHealthcare.GCommon.Enums;
 using AnimalHealthcare.Services.Core.Contracts;
 using AnimalHealthcare.Web.ViewModels.Appointment;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace AnimalHealthcare.Services.Core
 {
@@ -47,96 +48,34 @@ namespace AnimalHealthcare.Services.Core
         /// <returns>A populated <see cref="CreateAppointmentViewModel"/>.</returns>
         public async Task<CreateAppointmentViewModel> BuildCreateAppointmentViewModelAsync(string userId, int? doctorId = null, int? procedureId = null)
         {
-            // Get all pets for the current user
-            var pets = await _context.Animals
-                .Where(a => a.UserProfileId == userId && !a.IsDeleted)
-                .Select(a => new SelectListItem
-                {
-                    Value = a.Id.ToString(),
-                    Text = $"{a.Name} ({a.Species}, {a.Breed})"
-                })
-                .ToListAsync();
+            // Step 1: Load the user’s pets
+            var pets = await GetUserPetsAsync(userId);
 
             IEnumerable<SelectListItem> procedures = Enumerable.Empty<SelectListItem>();
             IEnumerable<SelectListItem> doctors = Enumerable.Empty<SelectListItem>();
 
+            // Step 2: Handle filtering combinations
             if (doctorId.HasValue && procedureId.HasValue)
             {
-                // Case: both doctor and procedure are known
-                procedures = await _context.Procedures
-                    .Where(p => p.Id == procedureId.Value && !p.IsDeleted)
-                    .Select(p => new SelectListItem
-                    {
-                        Value = p.Id.ToString(),
-                        Text = p.Name
-                    })
-                    .ToListAsync();
-
-                doctors = await _context.Doctors
-                    .Where(d => d.Id == doctorId.Value && !d.IsDeleted)
-                    .Select(d => new SelectListItem
-                    {
-                        Value = d.Id.ToString(),
-                        Text = d.Name
-                    })
-                    .ToListAsync();
+                procedures = await GetSelectedProcedureAsync(procedureId.Value);
+                doctors = await GetSelectedDoctorAsync(doctorId.Value);
             }
             else if (doctorId.HasValue)
             {
-                // Case: only doctor is known — get the procedures they can perform
-                procedures = await _context.DoctorProcedures
-                    .Where(dp => dp.DoctorId == doctorId.Value && !dp.Doctor.IsDeleted)
-                    .Select(dp => new SelectListItem
-                    {
-                        Value = dp.ProcedureId.ToString(),
-                        Text = dp.Procedure.Name
-                    })
-                    .ToListAsync();
-
-                doctors = await _context.Doctors
-                    .Where(d => d.Id == doctorId.Value && !d.IsDeleted)
-                    .Select(d => new SelectListItem
-                    {
-                        Value = d.Id.ToString(),
-                        Text = d.Name
-                    })
-                    .ToListAsync();
+                procedures = await GetProceduresByDoctorAsync(doctorId.Value);
+                doctors = await GetSelectedDoctorAsync(doctorId.Value);
             }
             else if (procedureId.HasValue)
             {
-                // Case: only procedure is known — get doctors who can perform it
-                procedures = await _context.Procedures
-                    .Where(p => p.Id == procedureId.Value && !p.IsDeleted)
-                    .Select(p => new SelectListItem
-                    {
-                        Value = p.Id.ToString(),
-                        Text = p.Name
-                    })
-                    .ToListAsync();
-
-                doctors = await _context.DoctorProcedures
-                    .Where(dp => dp.ProcedureId == procedureId.Value && !dp.Doctor.IsDeleted)
-                    .Select(dp => new SelectListItem
-                    {
-                        Value = dp.DoctorId.ToString(),
-                        Text = dp.Doctor.Name
-                    })
-                    .Distinct()
-                    .ToListAsync();
+                procedures = await GetSelectedProcedureAsync(procedureId.Value);
+                doctors = await GetDoctorsByProcedureAsync(procedureId.Value);
             }
             else
             {
-                // Default case: no preselection — load all available procedures
-                procedures = await _context.Procedures
-                    .Where(p => !p.IsDeleted)
-                    .Select(p => new SelectListItem
-                    {
-                        Value = p.Id.ToString(),
-                        Text = p.Name
-                    })
-                    .ToListAsync();
+                procedures = await GetAllProceduresAsync();
             }
 
+            // Step 3: Construct the view model with collected data
             return new CreateAppointmentViewModel
             {
                 UserPets = pets,
@@ -219,39 +158,39 @@ namespace AnimalHealthcare.Services.Core
         /// <param name="model">The view model containing appointment input data.</param>
         /// <param name="userId">The ID of the user attempting to create the appointment.</param>
         /// <returns>True if the appointment was created successfully, otherwise false.</returns>
-        public async Task<bool> CreateAppointmentAsync(CreateAppointmentViewModel model, string userId)
+        public async Task<AppointmentCreationResult> CreateAppointmentAsync(CreateAppointmentViewModel model, string userId)
         {
-            // 1. Validate that the selected pet belongs to the current user
+            // Step 1: Validate that the selected pet belongs to the current user
             var pet = await _context.Animals
                 .FirstOrDefaultAsync(a => a.Id == model.AnimalId && a.UserProfileId == userId && !a.IsDeleted);
-
             if (pet == null)
-                return false;
+                return AppointmentCreationResult.PetNotFound;
 
-            // 2. Validate that the selected doctor can perform the selected procedure
+            // Step 2: Validate that the selected doctor can perform the selected procedure
             var doctorProcedure = await _context.DoctorProcedures
                 .AnyAsync(dp => dp.DoctorId == model.DoctorId && dp.ProcedureId == model.ProcedureId);
-
             if (!doctorProcedure)
-                return false;
+                return AppointmentCreationResult.DoctorProcedureMismatch;
 
-            // 3. Validate that the time slot input is in correct format (e.g., "08:30")
+            // Step 3: Validate that the time slot input is in correct format (e.g., "08:30")
             if (!TimeSpan.TryParse(model.TimeSlot, out var time))
-                return false;
+                return AppointmentCreationResult.InvalidTimeSlotFormat;
 
-            // 4. Combine selected date and parsed time to form appointment datetime
+            // Step 4: Combine selected date and parsed time to form appointment datetime
             var appointmentDateTime = model.Date.Date.Add(time);
 
-            // 5. Check if the selected slot is already booked or falls within lunch break
+            // Step 5: Check if the selected slot is already booked or falls within lunch break (12:00)
             bool isBooked = await _context.Appointments.AnyAsync(a =>
                 a.DoctorId == model.DoctorId &&
                 a.AppointmentDateTime == appointmentDateTime &&
                 !a.IsDeleted);
+            if (isBooked)
+                return AppointmentCreationResult.SlotAlreadyBooked;
 
-            if (isBooked || appointmentDateTime.TimeOfDay == TimeSpan.FromHours(12)) // Exclude 12:00 slot (lunch)
-                return false;
+            if (appointmentDateTime.TimeOfDay == TimeSpan.FromHours(12))
+                return AppointmentCreationResult.SlotDuringLunch;
 
-            // 6. Create and save the appointment to the database
+            // Step 6: Create and save the appointment to the database
             var appointment = new Appointment
             {
                 AnimalId = model.AnimalId,
@@ -264,7 +203,7 @@ namespace AnimalHealthcare.Services.Core
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
 
-            return true;
+            return AppointmentCreationResult.Success;
         }
 
         /// <summary>
@@ -359,9 +298,9 @@ namespace AnimalHealthcare.Services.Core
         /// <returns>
         /// True if the cancellation succeeded; false if the appointment was not found or unauthorized.
         /// </returns>
-        public async Task<bool> CancelAppointmentAsync(int appointmentId, string userId)
+        public async Task<ServiceOperationResult> CancelAppointmentAsync(int appointmentId, string userId)
         {
-            // 1. Load the appointment, ensuring it belongs to the requesting user and isn't already deleted
+            // Step 1: Load the appointment including the associated animal for ownership validation
             var appointment = await _context.Appointments
                 .Include(a => a.Animal)
                 .FirstOrDefaultAsync(a =>
@@ -369,17 +308,97 @@ namespace AnimalHealthcare.Services.Core
                     !a.IsDeleted &&
                     a.Animal.UserProfileId == userId);
 
-            // 2. If appointment not found or unauthorized, return false
+            // Step 2: Return NotFound if appointment doesn't exist or doesn't belong to the user
             if (appointment == null)
-                return false;
+            {
+                // Could be truly missing or unauthorized access
+                var exists = await _context.Appointments.AnyAsync(a => a.Id == appointmentId && !a.IsDeleted);
+                return exists ? ServiceOperationResult.Unauthorized : ServiceOperationResult.NotFound;
+            }
 
-            // 3. Mark the appointment as logically deleted (soft delete)
+            // Step 3: Soft-delete the appointment
             appointment.IsDeleted = true;
 
-            // 4. Persist changes to the database
+            // Step 4: Save changes to the database
             await _context.SaveChangesAsync();
 
-            return true;
+            return ServiceOperationResult.Success;
+        }
+
+
+
+
+        private async Task<List<SelectListItem>> GetUserPetsAsync(string userId)
+        {
+            return await _context.Animals
+                .Where(a => a.UserProfileId == userId && !a.IsDeleted)
+                .Select(a => new SelectListItem
+                {
+                    Value = a.Id.ToString(),
+                    Text = $"{a.Name} ({a.Species}, {a.Breed})"
+                })
+                .ToListAsync();
+        }
+
+        private async Task<List<SelectListItem>> GetSelectedDoctorAsync(int doctorId)
+        {
+            return await _context.Doctors
+                .Where(d => d.Id == doctorId && !d.IsDeleted)
+                .Select(d => new SelectListItem
+                {
+                    Value = d.Id.ToString(),
+                    Text = d.Name
+                })
+                .ToListAsync();
+        }
+
+        private async Task<List<SelectListItem>> GetSelectedProcedureAsync(int procedureId)
+        {
+            return await _context.Procedures
+                .Where(p => p.Id == procedureId && !p.IsDeleted)
+                .Select(p => new SelectListItem
+                {
+                    Value = p.Id.ToString(),
+                    Text = p.Name
+                })
+                .ToListAsync();
+        }
+
+        private async Task<List<SelectListItem>> GetProceduresByDoctorAsync(int doctorId)
+        {
+            return await _context.DoctorProcedures
+                .Where(dp => dp.DoctorId == doctorId && !dp.Doctor.IsDeleted)
+                .Select(dp => new SelectListItem
+                {
+                    Value = dp.ProcedureId.ToString(),
+                    Text = dp.Procedure.Name
+                })
+                .ToListAsync();
+        }
+
+        private async Task<List<SelectListItem>> GetDoctorsByProcedureAsync(int procedureId)
+        {
+            return await _context.DoctorProcedures
+                .Where(dp => dp.ProcedureId == procedureId && !dp.Doctor.IsDeleted)
+                .Select(dp => new SelectListItem
+                {
+                    Value = dp.DoctorId.ToString(),
+                    Text = dp.Doctor.Name
+                })
+                .Distinct()
+                .ToListAsync();
+        }
+
+        private async Task<List<SelectListItem>> GetAllProceduresAsync()
+        {
+            return await _context.Procedures
+                .Where(p => !p.IsDeleted)
+                .Select(p => new SelectListItem
+                {
+                    Value = p.Id.ToString(),
+                    Text = p.Name
+                })
+                .ToListAsync();
         }
     }
 }

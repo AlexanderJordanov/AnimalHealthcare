@@ -1,4 +1,5 @@
-﻿using AnimalHealthcare.Services.Core.Contracts;
+﻿using AnimalHealthcare.GCommon.Enums;
+using AnimalHealthcare.Services.Core.Contracts;
 using AnimalHealthcare.Web.ViewModels.Appointment;
 using Microsoft.AspNetCore.Mvc;
 
@@ -63,7 +64,6 @@ namespace AnimalHealthcare.Web.Controllers
         }
 
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateAppointmentViewModel model)
@@ -78,21 +78,21 @@ namespace AnimalHealthcare.Web.Controllers
 
                 if (!ModelState.IsValid)
                 {
-                    // Rebuild dropdowns in case of validation failure
+                    // Rebuild dropdowns if validation fails
                     var rebuiltModel = await _appointmentService.BuildCreateAppointmentViewModelAsync(
                         userId,
                         model.DoctorId != 0 ? model.DoctorId : null,
                         model.ProcedureId != 0 ? model.ProcedureId : null
                     );
 
-                    // Keep selected values
+                    // Preserve user selections
                     rebuiltModel.AnimalId = model.AnimalId;
                     rebuiltModel.DoctorId = model.DoctorId;
                     rebuiltModel.ProcedureId = model.ProcedureId;
                     rebuiltModel.Date = model.Date;
                     rebuiltModel.TimeSlot = model.TimeSlot;
 
-                    // Populate time slots manually
+                    // Load available time slots
                     if (model.DoctorId != 0 && model.Date != default)
                     {
                         rebuiltModel.TimeSlots = await _appointmentService.GetAvailableTimeSlotsAsync(model.DoctorId, model.Date);
@@ -101,15 +101,46 @@ namespace AnimalHealthcare.Web.Controllers
                     return View(rebuiltModel);
                 }
 
-                var success = await _appointmentService.CreateAppointmentAsync(model, userId);
-                if (!success)
+                // Call service method and handle result enum
+                var result = await _appointmentService.CreateAppointmentAsync(model, userId);
+
+                switch (result)
                 {
-                    TempData["ErrorMessage"] = "Failed to create appointment. Please try again.";
-                    return RedirectToAction("Create");
+                    case AppointmentCreationResult.Success:
+                        TempData["SuccessMessage"] = "Appointment created successfully!";
+                        return RedirectToAction("MyAppointments");
+
+                    case AppointmentCreationResult.PetNotFound:
+                        TempData["ErrorMessage"] = "Selected pet not found or not owned by you.";
+                        break;
+
+                    case AppointmentCreationResult.DoctorProcedureMismatch:
+                        TempData["ErrorMessage"] = "The selected doctor is not authorized to perform the selected procedure.";
+                        break;
+
+                    case AppointmentCreationResult.InvalidTimeSlotFormat:
+                        TempData["ErrorMessage"] = "Invalid time format selected. Please choose a valid time slot.";
+                        break;
+
+                    case AppointmentCreationResult.SlotAlreadyBooked:
+                        TempData["ErrorMessage"] = "The selected time slot has already been booked.";
+                        break;
+
+                    case AppointmentCreationResult.SlotDuringLunch:
+                        TempData["ErrorMessage"] = "The 12:00 time slot is unavailable due to lunch break.";
+                        break;
+
+                    default:
+                        TempData["ErrorMessage"] = "An unknown error occurred. Please try again.";
+                        break;
                 }
 
-                TempData["SuccessMessage"] = "Appointment created successfully!";
-                return RedirectToAction("MyAppointments");
+                // On failure, redirect back to Create view
+                return RedirectToAction("Create", new
+                {
+                    doctorId = model.DoctorId,
+                    procedureId = model.ProcedureId
+                });
             }
             catch (Exception)
             {
@@ -223,19 +254,29 @@ namespace AnimalHealthcare.Web.Controllers
                     return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
                 }
 
-                var success = await _appointmentService.CancelAppointmentAsync(appointmentId, userId);
-                if (!success)
-                {
-                    return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
-                }
+                var result = await _appointmentService.CancelAppointmentAsync(appointmentId, userId);
 
-                TempData["SuccessMessage"] = "Appointment successfully canceled.";
-                return RedirectToAction("MyAppointments");
+                switch (result)
+                {
+                    case ServiceOperationResult.Success:
+                        TempData["SuccessMessage"] = "Appointment successfully canceled.";
+                        return RedirectToAction("MyAppointments");
+
+                    case ServiceOperationResult.NotFound:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
+
+                    case ServiceOperationResult.Unauthorized:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
+
+                    default:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
+                }
             }
             catch (Exception)
             {
                 return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
-            }            
+            }
         }
+
     }
 }

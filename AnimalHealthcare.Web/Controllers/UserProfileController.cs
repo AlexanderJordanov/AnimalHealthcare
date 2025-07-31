@@ -1,4 +1,5 @@
-﻿using AnimalHealthcare.Services.Core;
+﻿using AnimalHealthcare.GCommon.Enums;
+using AnimalHealthcare.Services.Core;
 using AnimalHealthcare.Services.Core.Contracts;
 using AnimalHealthcare.Web.ViewModels.UserProfile;
 using Microsoft.AspNetCore.Authentication;
@@ -59,32 +60,41 @@ namespace AnimalHealthcare.Web.Controllers
                     return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
                 }
 
-                if (!Uri.TryCreate(profilePictureUrl, UriKind.Absolute, out var uriResult)
-                    || !(uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
+                if (!Uri.TryCreate(profilePictureUrl, UriKind.Absolute, out var uriResult) ||
+                    !(uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
                 {
                     ModelState.AddModelError("", "Please provide a valid URL.");
                     return RedirectToAction(nameof(ViewProfile));
                 }
 
                 var result = await _userProfileService.UpdateProfilePictureAsync(userId, profilePictureUrl, userId);
-                if (result == null)
-                {
-                    return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
-                }
 
-                if (result == false)
+                switch (result)
                 {
-                    return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
-                }
+                    case ServiceOperationResult.Success:
+                        TempData["SuccessMessage"] = "Profile picture updated successfully!";
+                        return RedirectToAction(nameof(ViewProfile));
 
-                TempData["SuccessMessage"] = "Profile picture updated successfully!";
-                return RedirectToAction(nameof(ViewProfile));
+                    case ServiceOperationResult.Unauthorized:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
+
+                    case ServiceOperationResult.NotFound:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
+
+                    case ServiceOperationResult.NoChange:
+                        TempData["InfoMessage"] = "No changes were made.";
+                        return RedirectToAction(nameof(ViewProfile));
+
+                    default:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
+                }
             }
             catch (Exception)
             {
                 return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
-            }            
+            }
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -99,24 +109,33 @@ namespace AnimalHealthcare.Web.Controllers
                 }
 
                 var result = await _userProfileService.UpdateProfilePictureAsync(userId, null, userId);
-                if (result == null)
-                {
-                    return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
-                }
 
-                if (result == false)
+                switch (result)
                 {
-                    return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
-                }
+                    case ServiceOperationResult.Success:
+                        TempData["SuccessMessage"] = "Profile picture removed successfully!";
+                        return RedirectToAction(nameof(ViewProfile));
 
-                TempData["SuccessMessage"] = "Profile picture removed successfully!";
-                return RedirectToAction(nameof(ViewProfile));
+                    case ServiceOperationResult.Unauthorized:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
+
+                    case ServiceOperationResult.NotFound:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
+
+                    case ServiceOperationResult.NoChange:
+                        TempData["InfoMessage"] = "No changes were made.";
+                        return RedirectToAction(nameof(ViewProfile));
+
+                    default:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
+                }
             }
             catch (Exception)
             {
                 return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
-            }            
+            }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> EditEmail()
@@ -160,31 +179,35 @@ namespace AnimalHealthcare.Web.Controllers
                     return View(model);
                 }
 
-                var (success, unchanged) = await _userProfileService.UpdateEmailAsync(userId, model, userId);
+                var result = await _userProfileService.UpdateEmailAsync(userId, model, userId);
 
-                if (!success)
+                switch (result)
                 {
-                    ModelState.AddModelError("", "Email update failed. Please try again.");
-                    return View(model);
-                }
+                    case ServiceOperationResult.Success:
+                        TempData["SuccessMessage"] = "Email updated successfully!";
+                        return RedirectToAction(nameof(ViewProfile));
 
-                if (unchanged)
-                {
-                    TempData["InfoMessage"] = "Your email is unchanged.";
-                    return View(model);
-                }
-                else
-                {
-                    TempData["SuccessMessage"] = "Email updated successfully!";
-                    return RedirectToAction(nameof(ViewProfile));
+                    case ServiceOperationResult.NoChange:
+                        TempData["InfoMessage"] = "Your email is unchanged.";
+                        return View(model);
+
+                    case ServiceOperationResult.Unauthorized:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
+
+                    case ServiceOperationResult.NotFound:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
+
+                    default:
+                        ModelState.AddModelError("", "Email update failed. Please try again.");
+                        return View(model);
                 }
             }
             catch (Exception)
             {
                 return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
             }
-            
         }
+
 
         [HttpGet]
         public async Task<IActionResult> EditFullName()
@@ -230,25 +253,32 @@ namespace AnimalHealthcare.Web.Controllers
 
                 var result = await _userProfileService.UpdateFullNameAsync(userId, model, userId);
 
-                if (result == null)
+                switch (result)
                 {
-                    return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
-                }
+                    case ServiceOperationResult.Success:
+                        TempData["SuccessMessage"] = "Full name updated successfully!";
+                        return RedirectToAction(nameof(ViewProfile));
 
-                if (result == false)
-                {
-                    TempData["InfoMessage"] = "Your full name is unchanged.";
-                    return View(model);
-                }
+                    case ServiceOperationResult.NoChange:
+                        TempData["InfoMessage"] = "Your full name is unchanged.";
+                        return View(model);
 
-                TempData["SuccessMessage"] = "Full name updated successfully!";
-                return RedirectToAction(nameof(ViewProfile));
+                    case ServiceOperationResult.Unauthorized:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
+
+                    case ServiceOperationResult.NotFound:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
+
+                    default:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
+                }
             }
             catch (Exception)
             {
                 return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
-            }            
+            }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> EditPhoneNumber()
@@ -278,7 +308,7 @@ namespace AnimalHealthcare.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPhoneNumber(EditPhoneNumberViewModel model)
-        {           
+        {
             try
             {
                 var userId = GetUserId();
@@ -287,32 +317,39 @@ namespace AnimalHealthcare.Web.Controllers
                     return RedirectToAction("HandleStatusCode", "Error", new { code = 401 });
                 }
 
-                if (!ModelState.IsValid) 
+                if (!ModelState.IsValid)
                 {
                     return View(model);
                 }
-                
+
                 var result = await _userProfileService.UpdatePhoneNumberAsync(userId, model, userId);
-                if (result == null)
-                {
-                    return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
-                }
 
-                if (result == false)
+                switch (result)
                 {
-                    TempData["InfoMessage"] = "Phone number is unchanged.";
-                    return View(model);
-                }
+                    case ServiceOperationResult.Success:
+                        TempData["SuccessMessage"] = "Phone number updated successfully!";
+                        return RedirectToAction(nameof(ViewProfile));
 
-                TempData["SuccessMessage"] = "Phone number updated successfully!";
+                    case ServiceOperationResult.NoChange:
+                        TempData["InfoMessage"] = "Phone number is unchanged.";
+                        return View(model);
+
+                    case ServiceOperationResult.NotFound:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
+
+                    case ServiceOperationResult.Unauthorized:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
+
+                    default:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
+                }
             }
             catch (Exception)
             {
                 return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
             }
-
-            return RedirectToAction(nameof(ViewProfile));
         }
+
 
         [HttpGet]
         public async Task<IActionResult> EditAddress()
@@ -356,27 +393,34 @@ namespace AnimalHealthcare.Web.Controllers
                     return View(model);
                 }
 
-                var (success, unchanged) = await _userProfileService.UpdateAddressAsync(userId, model, userId);
+                var result = await _userProfileService.UpdateAddressAsync(userId, model, userId);
 
-                if (!success)
+                switch (result)
                 {
-                    return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
-                }
+                    case ServiceOperationResult.Success:
+                        TempData["SuccessMessage"] = "Address updated successfully!";
+                        return RedirectToAction(nameof(ViewProfile));
 
-                if (unchanged)
-                {
-                    TempData["InfoMessage"] = "Your address is unchanged.";
-                    return View(model);
-                }
+                    case ServiceOperationResult.NoChange:
+                        TempData["InfoMessage"] = "Your address is unchanged.";
+                        return View(model);
 
-                TempData["SuccessMessage"] = "Address updated successfully!";
-                return RedirectToAction(nameof(ViewProfile));
+                    case ServiceOperationResult.Unauthorized:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
+
+                    case ServiceOperationResult.NotFound:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
+
+                    default:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
+                }
             }
             catch (Exception)
             {
                 return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
-            }            
+            }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Delete()
@@ -421,23 +465,27 @@ namespace AnimalHealthcare.Web.Controllers
                 }
 
                 var result = await _userProfileService.DeleteUserProfileAsync(userId, userId);
-                if (result == null)
-                {
-                    return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
-                }
 
-                if (result == false)
+                switch (result)
                 {
-                    return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
-                }
+                    case ServiceOperationResult.Success:
+                        TempData["SuccessMessage"] = "Your profile has been deleted.";
+                        return RedirectToAction("Index", "Home");
 
-                TempData["SuccessMessage"] = "Your profile has been deleted.";
-                return RedirectToAction("Index", "Home");
+                    case ServiceOperationResult.Unauthorized:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 403 });
+
+                    case ServiceOperationResult.NotFound:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
+
+                    default:
+                        return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
+                }
             }
             catch (Exception)
             {
                 return RedirectToAction("HandleStatusCode", "Error", new { code = 500 });
-            }            
+            }
         }
     }
 }

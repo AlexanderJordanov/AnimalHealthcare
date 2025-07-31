@@ -1,5 +1,6 @@
 ﻿using AnimalHealthcare.Data;
 using AnimalHealthcare.Data.Models;
+using AnimalHealthcare.GCommon.Enums;
 using AnimalHealthcare.Services.Core.Contracts;
 using AnimalHealthcare.Web.ViewModels.Animal;
 using AnimalHealthcare.Web.ViewModels.UserProfile;
@@ -112,40 +113,27 @@ namespace AnimalHealthcare.Services.Core
         /// <returns>
         /// <c>true</c> if the pet was successfully unregistered; otherwise, <c>false</c>.
         /// </returns>
-        public async Task<bool> UnregisterPetAsync(int id, string? requestingUserId = null)
+        public async Task<ServiceOperationResult> UnregisterPetAsync(int id, string? requestingUserId = null)
         {
-            // Fetch the animal including its appointments and user profile, only if it’s not already deleted
             var animal = await _context.Animals
                 .Include(a => a.Appointments)
-                .Include(a => a.UserProfile)
                 .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
 
-            // If the animal does not exist, return false
             if (animal == null)
-            {
-                return false;
-            }
-                
-            // If user validation is needed, ensure the requester owns the animal
-            if (requestingUserId != null && animal.UserProfileId != requestingUserId) 
-            {
-                return false;
-            }
+                return ServiceOperationResult.NotFound;
 
-            
+            if (requestingUserId != null && animal.UserProfileId != requestingUserId)
+                return ServiceOperationResult.Unauthorized;
+
             foreach (var appointment in animal.Appointments)
-            {
-                // Mark each appointment as logically deleted
                 appointment.IsDeleted = true;
-            }
 
-            // Mark the animal as logically deleted
             animal.IsDeleted = true;
 
-            // Save all changes to the database
             await _context.SaveChangesAsync();
-            return true;
+            return ServiceOperationResult.Success;
         }
+
 
         /// <summary>
         /// Retrieves detailed information for a specific animal, including its appointments,
@@ -243,38 +231,40 @@ namespace AnimalHealthcare.Services.Core
         /// <c>true</c> if the update was applied successfully; 
         /// <c>false</c> if the pet wasn't found, wasn't owned by the user, or no changes were made.
         /// </returns>
-        public async Task<bool?> UpdateAnimalAsync(EditPetViewModel model, string requestingUserId)
+        public async Task<ServiceOperationResult> UpdateAnimalAsync(EditPetViewModel model, string requestingUserId)
         {
-            // Retrieve the animal by ID and ensure it is not marked as deleted
+            // Step 1: Retrieve the animal and ensure it's not deleted
             var animal = await _context.Animals
                 .FirstOrDefaultAsync(a => a.Id == model.Id && !a.IsDeleted);
 
-            // Ensure the animal exists and belongs to the requesting user
-            if (animal == null || animal.UserProfileId != requestingUserId)
-            {
-                return null; // Not found or unauthorized
-            }
+            // Step 2: Return NotFound or Unauthorized if not accessible
+            if (animal == null)
+                return ServiceOperationResult.NotFound;
 
-            // Return false early if the submitted values match the existing ones
-            if (animal.Name == model.Name &&
+            if (animal.UserProfileId != requestingUserId)
+                return ServiceOperationResult.Unauthorized;
+
+            // Step 3: Return NoChange if nothing was modified
+            if (animal.Name.Trim() == model.Name.Trim() &&
                 animal.Age == model.Age &&
-                animal.Species == model.Species &&
-                animal.Breed == model.Breed &&
+                animal.Species.Trim() == model.Species.Trim() &&
+                animal.Breed.Trim() == model.Breed.Trim() &&
                 animal.Gender == model.Gender)
             {
-                return false; // No changes detected
+                return ServiceOperationResult.NoChange;
             }
 
-            // Apply updates
-            animal.Name = model.Name;
+            // Step 4: Apply updates
+            animal.Name = model.Name.Trim();
             animal.Age = model.Age;
-            animal.Species = model.Species;
-            animal.Breed = model.Breed;
+            animal.Species = model.Species.Trim();
+            animal.Breed = model.Breed.Trim();
             animal.Gender = model.Gender;
 
-            // Save changes to the database
+            // Step 5: Save changes
             await _context.SaveChangesAsync();
-            return true;
+            return ServiceOperationResult.Success;
         }
+
     }
 }

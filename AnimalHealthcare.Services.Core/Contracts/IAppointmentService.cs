@@ -1,4 +1,5 @@
-﻿using AnimalHealthcare.Web.ViewModels.Appointment;
+﻿using AnimalHealthcare.GCommon.Enums;
+using AnimalHealthcare.Web.ViewModels.Appointment;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 
@@ -12,14 +13,12 @@ namespace AnimalHealthcare.Services.Core.Contracts
 
         Task<List<SelectListItem>> GetAvailableTimeSlotsAsync(int doctorId, DateTime date);
 
-        Task<bool> CreateAppointmentAsync(CreateAppointmentViewModel model, string userId);
+        Task<AppointmentCreationResult> CreateAppointmentAsync(CreateAppointmentViewModel model, string userId);
 
         Task<AppointmentDetailsViewModel?> GetAppointmentDetailsAsync(int appointmentId, string requestingUserId);
 
         Task<CancelAppointmentViewModel?> BuildCancelAppointmentViewModelAsync(int appointmentId, string userId);
 
-        Task<bool> CancelAppointmentAsync(int appointmentId, string userId);
-
-
+        Task<ServiceOperationResult> CancelAppointmentAsync(int appointmentId, string userId);
     }
 }

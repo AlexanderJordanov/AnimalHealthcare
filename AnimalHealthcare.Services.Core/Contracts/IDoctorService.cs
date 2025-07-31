@@ -13,7 +13,5 @@ namespace AnimalHealthcare.Services.Core.Contracts
         Task<DoctorDetailsViewModel?> GetDoctorDetailsAsync(int doctorId);
 
         Task<string?> GetDoctorNameByIdAsync(int doctorId);
-
-
     }
 }
