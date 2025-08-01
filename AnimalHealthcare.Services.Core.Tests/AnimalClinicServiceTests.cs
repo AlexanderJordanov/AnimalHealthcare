@@ -9,8 +9,8 @@ namespace AnimalHealthcare.Tests.Services
     [TestFixture]
     public class AnimalClinicServiceTests
     {
-        private AnimalHealthcareDbContext _context = null!;
-        private AnimalClinicService _service = null!;
+        private AnimalHealthcareDbContext _context;
+        private AnimalClinicService _service;
 
         [SetUp]
         public async Task Setup()
@@ -121,7 +121,7 @@ namespace AnimalHealthcare.Tests.Services
         {
             // Setup fresh context with no data for this test
             var options = new DbContextOptionsBuilder<AnimalHealthcareDbContext>()
-                .UseInMemoryDatabase(databaseName: "EmptyDb_" + System.Guid.NewGuid())
+                .UseInMemoryDatabase(databaseName: "EmptyDb_" + Guid.NewGuid())
                 .Options;
             await using var emptyContext = new AnimalHealthcareDbContext(options);
             var service = new AnimalClinicService(emptyContext);
@@ -137,7 +137,7 @@ namespace AnimalHealthcare.Tests.Services
         {
             // Add clinic with doctors for this test
             var options = new DbContextOptionsBuilder<AnimalHealthcareDbContext>()
-                .UseInMemoryDatabase(databaseName: "ClinicDoctorsTestDb_" + System.Guid.NewGuid())
+                .UseInMemoryDatabase(databaseName: "ClinicDoctorsTestDb_" + Guid.NewGuid())
                 .Options;
             await using var context = new AnimalHealthcareDbContext(options);
 
