@@ -308,7 +308,6 @@ namespace AnimalHealthcare.Tests.Services
             // Assert
             Assert.IsNull(result);
         }
-
     }
 }
 
