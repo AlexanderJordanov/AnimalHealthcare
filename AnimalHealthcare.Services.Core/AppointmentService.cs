@@ -105,7 +105,16 @@ namespace AnimalHealthcare.Services.Core
                 };
             }
 
-            // 2. Define standard working hours (excluding 12:00–13:00 lunch break)
+            // 2. If date is in the past, no slots available
+            if (date.Date < DateTime.Today)
+            {
+                return new List<SelectListItem>
+                {
+                    new SelectListItem { Text = "No available time slots", Value = "" }
+                };
+            }
+
+            // 3. Define standard working hours (excluding 12:00–13:00 lunch break)
             var workingSlots = new List<string>
                 {
                     "08:00", "08:30", "09:00", "09:30",
@@ -324,9 +333,6 @@ namespace AnimalHealthcare.Services.Core
 
             return ServiceOperationResult.Success;
         }
-
-
-
 
         private async Task<List<SelectListItem>> GetUserPetsAsync(string userId)
         {
