@@ -830,7 +830,6 @@ namespace AnimalHealthcare.Tests.Services
             // Assert
             Assert.That(result, Is.EqualTo(ServiceOperationResult.NotFound));
         }
-
     }
 }
 

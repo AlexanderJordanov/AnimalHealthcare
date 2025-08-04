@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace AnimalHealthcare.Services.Core
 {
     public class DoctorService : IDoctorService
-    {
+    {       
         private readonly AnimalHealthcareDbContext _context;
 
         public DoctorService(AnimalHealthcareDbContext context)
