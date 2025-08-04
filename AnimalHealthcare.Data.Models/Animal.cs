@@ -1,5 +1,4 @@
 ﻿using AnimalHealthcare.GCommon.Enums;
-using Microsoft.AspNetCore.Identity;
 
 namespace AnimalHealthcare.Data.Models
 {

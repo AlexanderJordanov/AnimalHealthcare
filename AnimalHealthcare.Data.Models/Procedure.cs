@@ -1,5 +1,4 @@
-﻿
-namespace AnimalHealthcare.Data.Models
+﻿namespace AnimalHealthcare.Data.Models
 {
     public class Procedure
     {

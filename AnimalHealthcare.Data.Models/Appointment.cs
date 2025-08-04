@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-namespace AnimalHealthcare.Data.Models
+﻿namespace AnimalHealthcare.Data.Models
 {
     public class Appointment
     {
