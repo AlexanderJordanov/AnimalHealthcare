@@ -142,6 +142,7 @@ namespace AnimalHealthcare.Services.Core
                 .FirstOrDefaultAsync(p => p.Id == targetProfileId);
 
             if (profile == null || profile.User == null)
+                return null;
 
             return new EditEmailViewModel
             {
