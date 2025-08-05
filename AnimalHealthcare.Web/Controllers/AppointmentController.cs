@@ -101,7 +101,6 @@ namespace AnimalHealthcare.Web.Controllers
                     return View(rebuiltModel);
                 }
 
-                // Call service method and handle result enum
                 var result = await _appointmentService.CreateAppointmentAsync(model, userId);
 
                 switch (result)

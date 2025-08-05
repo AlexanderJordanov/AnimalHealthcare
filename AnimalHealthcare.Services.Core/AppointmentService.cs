@@ -25,9 +25,9 @@ namespace AnimalHealthcare.Services.Core
         public async Task<List<MyAppointmentViewModel>> GetAppointmentsByUserIdAsync(string userId)
         {
             return await _context.Appointments
-                .Where(a => a.UserProfileId == userId && !a.IsDeleted) // Filter by user and exclude deleted appointments
-                .Include(a => a.Animal)     // Include related animal (pet) data
-                .Include(a => a.Procedure)  // Include related procedure data
+                .Where(a => a.UserProfileId == userId && !a.IsDeleted) 
+                .Include(a => a.Animal)    
+                .Include(a => a.Procedure) 
                 .Select(a => new MyAppointmentViewModel
                 {
                     Id = a.Id,
@@ -48,13 +48,11 @@ namespace AnimalHealthcare.Services.Core
         /// <returns>A populated <see cref="CreateAppointmentViewModel"/>.</returns>
         public async Task<CreateAppointmentViewModel> BuildCreateAppointmentViewModelAsync(string userId, int? doctorId = null, int? procedureId = null)
         {
-            // Step 1: Load the user’s pets
             var pets = await GetUserPetsAsync(userId);
 
             IEnumerable<SelectListItem> procedures = Enumerable.Empty<SelectListItem>();
             IEnumerable<SelectListItem> doctors = Enumerable.Empty<SelectListItem>();
 
-            // Step 2: Handle filtering combinations
             if (doctorId.HasValue && procedureId.HasValue)
             {
                 procedures = await GetSelectedProcedureAsync(procedureId.Value);
@@ -75,7 +73,6 @@ namespace AnimalHealthcare.Services.Core
                 procedures = await GetAllProceduresAsync();
             }
 
-            // Step 3: Construct the view model with collected data
             return new CreateAppointmentViewModel
             {
                 UserPets = pets,
@@ -96,7 +93,6 @@ namespace AnimalHealthcare.Services.Core
         /// <returns>A list of available time slots as <see cref="SelectListItem"/>.</returns>
         public async Task<List<SelectListItem>> GetAvailableTimeSlotsAsync(int doctorId, DateTime date)
         {
-            // 1. Skip weekends
             if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
             {
                 return new List<SelectListItem>
@@ -105,7 +101,6 @@ namespace AnimalHealthcare.Services.Core
                 };
             }
 
-            // 2. If date is in the past, no slots available
             if (date.Date < DateTime.Today)
             {
                 return new List<SelectListItem>
@@ -114,7 +109,6 @@ namespace AnimalHealthcare.Services.Core
                 };
             }
 
-            // 3. Define standard working hours (excluding 12:00–13:00 lunch break)
             var workingSlots = new List<string>
                 {
                     "08:00", "08:30", "09:00", "09:30",
@@ -123,7 +117,6 @@ namespace AnimalHealthcare.Services.Core
                     "15:00", "15:30", "16:00", "16:30"
                 };
 
-            // 3. Exclude past time slots if the selected date is today
             //if (date.Date == DateTime.Today)
             //{
             //    var now = DateTime.Now.TimeOfDay;
@@ -132,7 +125,6 @@ namespace AnimalHealthcare.Services.Core
             //        .ToList();
             //}
 
-            // 4. Fetch already booked appointment times for that doctor on the selected date
             var bookedSlots = await _context.Appointments
                 .Where(a => a.DoctorId == doctorId
                     && !a.IsDeleted
@@ -141,13 +133,11 @@ namespace AnimalHealthcare.Services.Core
                 .Select(a => a.AppointmentDateTime.ToString("HH:mm"))
                 .ToListAsync();
 
-            // 5. Filter out booked slots from working slots
             var availableSlots = workingSlots
                 .Where(t => !bookedSlots.Contains(t))
                 .Select(t => new SelectListItem { Value = t, Text = t })
                 .ToList();
 
-            // 6. Handle case where no time slots are left
             if (!availableSlots.Any())
             {
                 availableSlots.Add(new SelectListItem
@@ -169,26 +159,21 @@ namespace AnimalHealthcare.Services.Core
         /// <returns>True if the appointment was created successfully, otherwise false.</returns>
         public async Task<AppointmentCreationResult> CreateAppointmentAsync(CreateAppointmentViewModel model, string userId)
         {
-            // Step 1: Validate that the selected pet belongs to the current user
             var pet = await _context.Animals
                 .FirstOrDefaultAsync(a => a.Id == model.AnimalId && a.UserProfileId == userId && !a.IsDeleted);
             if (pet == null)
                 return AppointmentCreationResult.PetNotFound;
 
-            // Step 2: Validate that the selected doctor can perform the selected procedure
             var doctorProcedure = await _context.DoctorProcedures
                 .AnyAsync(dp => dp.DoctorId == model.DoctorId && dp.ProcedureId == model.ProcedureId);
             if (!doctorProcedure)
                 return AppointmentCreationResult.DoctorProcedureMismatch;
 
-            // Step 3: Validate that the time slot input is in correct format (e.g., "08:30")
             if (!TimeSpan.TryParse(model.TimeSlot, out var time))
                 return AppointmentCreationResult.InvalidTimeSlotFormat;
 
-            // Step 4: Combine selected date and parsed time to form appointment datetime
             var appointmentDateTime = model.Date.Date.Add(time);
 
-            // Step 5: Check if the selected slot is already booked or falls within lunch break (12:00)
             bool isBooked = await _context.Appointments.AnyAsync(a =>
                 a.DoctorId == model.DoctorId &&
                 a.AppointmentDateTime == appointmentDateTime &&
@@ -199,7 +184,6 @@ namespace AnimalHealthcare.Services.Core
             if (appointmentDateTime.TimeOfDay == TimeSpan.FromHours(12))
                 return AppointmentCreationResult.SlotDuringLunch;
 
-            // Step 6: Create and save the appointment to the database
             var appointment = new Appointment
             {
                 AnimalId = model.AnimalId,
@@ -226,7 +210,6 @@ namespace AnimalHealthcare.Services.Core
         /// </returns>
         public async Task<AppointmentDetailsViewModel?> GetAppointmentDetailsAsync(int appointmentId, string requestingUserId)
         {
-            // 1. Load the appointment and its related entities
             var appointment = await _context.Appointments
                 .Include(a => a.Animal)
                     .ThenInclude(an => an.UserProfile)
@@ -235,16 +218,13 @@ namespace AnimalHealthcare.Services.Core
                 .Include(a => a.Procedure)
                 .FirstOrDefaultAsync(a => a.Id == appointmentId && !a.IsDeleted);
 
-            // 2. Check if appointment exists, is not deleted, and belongs to the user
             if (appointment == null || appointment.Animal.IsDeleted || appointment.Animal.UserProfileId != requestingUserId)
             {
-                return null; // Appointment doesn't exist or access is denied
+                return null; 
             }
 
-            // 3. Map appointment data to view model
             return new AppointmentDetailsViewModel
             {
-                // Pet & Owner
                 OwnerFullName = appointment.Animal.UserProfile.FullName,
                 PetName = appointment.Animal.Name,
                 Species = appointment.Animal.Species,
@@ -252,7 +232,6 @@ namespace AnimalHealthcare.Services.Core
                 Age = appointment.Animal.Age,
                 Gender = appointment.Animal.Gender.ToString(),
 
-                // Doctor Info
                 DoctorName = appointment.Doctor.Name,
                 Specialization = appointment.Doctor.Specialization,
                 YearsOfExperience = appointment.Doctor.YearsOfExperience,
@@ -260,7 +239,6 @@ namespace AnimalHealthcare.Services.Core
                 ClinicName = appointment.Doctor.AnimalClinic.Name,
                 ClinicAddress = appointment.Doctor.AnimalClinic.Address,
 
-                // Procedure Info
                 ProcedureName = appointment.Procedure.Name,
                 ProcedureDescription = appointment.Procedure.Description
             };
@@ -276,20 +254,17 @@ namespace AnimalHealthcare.Services.Core
         /// </returns>
         public async Task<CancelAppointmentViewModel?> BuildCancelAppointmentViewModelAsync(int appointmentId, string userId)
         {
-            // 1. Load the appointment and related entities
             var appointment = await _context.Appointments
                 .Include(a => a.Animal)
                 .Include(a => a.Doctor)
                 .FirstOrDefaultAsync(a =>
                     a.Id == appointmentId &&
                     !a.IsDeleted &&
-                    a.Animal.UserProfileId == userId); // Ensure ownership
+                    a.Animal.UserProfileId == userId); 
 
-            // 2. If not found or not owned, return null
             if (appointment == null)
                 return null;
 
-            // 3. Map appointment info to view model for cancellation confirmation
             return new CancelAppointmentViewModel
             {
                 AppointmentId = appointment.Id,
@@ -309,7 +284,6 @@ namespace AnimalHealthcare.Services.Core
         /// </returns>
         public async Task<ServiceOperationResult> CancelAppointmentAsync(int appointmentId, string userId)
         {
-            // Step 1: Load the appointment including the associated animal for ownership validation
             var appointment = await _context.Appointments
                 .Include(a => a.Animal)
                 .FirstOrDefaultAsync(a =>
@@ -317,18 +291,14 @@ namespace AnimalHealthcare.Services.Core
                     !a.IsDeleted &&
                     a.Animal.UserProfileId == userId);
 
-            // Step 2: Return NotFound if appointment doesn't exist or doesn't belong to the user
             if (appointment == null)
             {
-                // Could be truly missing or unauthorized access
                 var exists = await _context.Appointments.AnyAsync(a => a.Id == appointmentId && !a.IsDeleted);
                 return exists ? ServiceOperationResult.Unauthorized : ServiceOperationResult.NotFound;
             }
 
-            // Step 3: Soft-delete the appointment
             appointment.IsDeleted = true;
 
-            // Step 4: Save changes to the database
             await _context.SaveChangesAsync();
 
             return ServiceOperationResult.Success;

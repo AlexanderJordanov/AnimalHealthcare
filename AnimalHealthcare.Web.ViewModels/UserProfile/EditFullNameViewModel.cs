@@ -6,6 +6,8 @@ namespace AnimalHealthcare.Web.ViewModels.UserProfile
     using static AnimalHealthcare.GCommon.ValidationConstants.ErrorMessages;
     public class EditFullNameViewModel
     {
+        public string ProfileId { get; set; } = null!;
+
         [Required(ErrorMessage = Required)]
         [StringLength(FullNameMaxLength, MinimumLength = FullNameMinLength, ErrorMessage = StringLength)]
         [Display(Name = "Full Name")]

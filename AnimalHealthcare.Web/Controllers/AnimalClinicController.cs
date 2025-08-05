@@ -38,7 +38,6 @@ namespace AnimalHealthcare.Web.Controllers
 
                 if (model == null)
                 {
-                    // Redirect to a custom error page
                     return RedirectToAction("HandleStatusCode", "Error", new { code = 404 });
                 }
 

@@ -23,14 +23,17 @@
 
 <form asp-action="EditEmail" method="post" class="col-md-6">
     @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ProfileId" />  
+
     <div class="mb-3">
         <label asp-for="Email" class="text-primary fw-bold fs-5"></label>
         <input asp-for="Email" class="form-control" placeholder="Enter your new email" />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="ViewProfile" class="btn btn-secondary ms-2">Cancel</a>
+    <a asp-action="ViewProfile" asp-route-profileId="@Model.ProfileId" class="btn btn-secondary ms-2">Cancel</a>
 </form>
+
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

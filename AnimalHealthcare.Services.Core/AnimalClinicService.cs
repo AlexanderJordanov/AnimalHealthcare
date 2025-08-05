@@ -23,7 +23,6 @@ namespace AnimalHealthcare.Services.Core
         /// </returns>
         public async Task<AnimalClinicListViewModel> GetAllClinicsAsync()
         {
-            // Fetch all clinics from the database and project them into a simplified view model
             var clinics = await _context.AnimalClinics
                 .Select(c => new AnimalClinicListItemViewModel
                 {
@@ -31,11 +30,10 @@ namespace AnimalHealthcare.Services.Core
                     Name = c.Name,
                     Address = c.Address,
                     PhoneNumber = c.PhoneNumber,
-                    ImageUrl = c.ImageUrl! // Assume image is required and never null
+                    ImageUrl = c.ImageUrl! 
                 })
                 .ToListAsync();
 
-            // Wrap the result into a container view model for the list
             return new AnimalClinicListViewModel
             {
                 Clinics = clinics
@@ -53,7 +51,6 @@ namespace AnimalHealthcare.Services.Core
         /// </returns>
         public async Task<AnimalClinicDetailsViewModel?> GetClinicDetailsAsync(int id)
         {
-            // Query the clinic from the database by its ID
             var clinic = await _context.AnimalClinics
                 .Where(c => c.Id == id)
                 .Select(c => new AnimalClinicDetailsViewModel
@@ -64,7 +61,6 @@ namespace AnimalHealthcare.Services.Core
                     PhoneNumber = c.PhoneNumber,
                     ImageUrl = c.ImageUrl,
 
-                    // Project only non-deleted doctors into a simplified view model
                     Doctors = c.Doctors
                         .Where(d => !d.IsDeleted)
                         .Select(d => new AnimalClinicDoctorViewModel
@@ -77,7 +73,7 @@ namespace AnimalHealthcare.Services.Core
                             PhoneNumber = d.PhoneNumber
                         }).ToList()
                 })
-                .FirstOrDefaultAsync(); // Returns null if no match found
+                .FirstOrDefaultAsync(); 
 
             return clinic;
         }

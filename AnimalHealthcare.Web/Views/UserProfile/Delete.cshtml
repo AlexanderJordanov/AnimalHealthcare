@@ -14,6 +14,7 @@
 
 <form asp-action="ConfirmDelete" method="post">
     @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ProfileId" />
     <button type="submit" class="btn btn-danger">Yes, Delete My Profile</button>
-    <a asp-action="ViewProfile" class="btn btn-secondary">Cancel</a>
+    <a asp-action="ViewProfile" asp-route-profileId="@Model.ProfileId" class="btn btn-secondary">Cancel</a>
 </form>

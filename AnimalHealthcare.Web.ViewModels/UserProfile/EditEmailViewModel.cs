@@ -9,6 +9,8 @@ namespace AnimalHealthcare.Web.ViewModels.UserProfile
 
     public class EditEmailViewModel
     {
+        public string ProfileId { get; set; } = null!;
+
         [Required(ErrorMessage = Required)]
         [StringLength(EmailMaxLength, MinimumLength = EmailMinLength, ErrorMessage = StringLength)]
         [EmailAddress(ErrorMessage = ErrorMessages.Email)]

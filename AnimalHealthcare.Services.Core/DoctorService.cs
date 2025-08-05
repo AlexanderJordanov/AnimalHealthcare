@@ -22,8 +22,6 @@ namespace AnimalHealthcare.Services.Core
         /// <returns>A list of doctors formatted as <see cref="SelectListItem"/> for use in dropdowns.</returns>
         public async Task<List<SelectListItem>> GetDoctorsByProcedureAsync(int procedureId)
         {
-            // Query the DoctorProcedures join table, filtering for the specified procedure
-            // and ensuring doctors are not marked as deleted.
             var doctors = await _context.DoctorProcedures
                 .Where(dp => dp.ProcedureId == procedureId && !dp.Doctor.IsDeleted)
                 .Select(dp => new SelectListItem
@@ -46,12 +44,10 @@ namespace AnimalHealthcare.Services.Core
         /// <returns>A <see cref="DoctorListViewModel"/> containing doctor items, paging info, and filter options.</returns>
         public async Task<DoctorListViewModel> GetDoctorsAsync(int page, int pageSize, string? sortBy, string? filterBy)
         {
-            // Start with all non-deleted doctors, including clinic info
             var query = _context.Doctors
                 .Include(d => d.AnimalClinic)
                 .Where(d => !d.IsDeleted);
 
-            // Apply filtering based on the selected category
             if (!string.IsNullOrEmpty(filterBy))
             {
                 if (sortBy == "speciality")
@@ -64,24 +60,20 @@ namespace AnimalHealthcare.Services.Core
                 }
             }
 
-            // Apply sorting logic based on requested parameter
             query = sortBy switch
             {
                 "speciality" => query.OrderBy(d => d.Specialization),
                 "clinic" => query.OrderBy(d => d.AnimalClinic.Name),
-                _ => query.OrderBy(d => d.Name) // Default: sort by name
+                _ => query.OrderBy(d => d.Name)
             };
 
-            // Count total doctors for pagination
             var totalDoctors = await query.CountAsync();
 
-            // Apply pagination
             var doctors = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            // Load filter dropdown options based on the selected sorting category
             var filters = sortBy switch
             {
                 "speciality" => await _context.Doctors
@@ -96,10 +88,9 @@ namespace AnimalHealthcare.Services.Core
                     .Select(c => new SelectListItem { Value = c.Name, Text = c.Name })
                     .ToListAsync(),
 
-                _ => new List<SelectListItem>() // No filters available
+                _ => new List<SelectListItem>()
             };
 
-            // Build and return the full doctor list view model
             return new DoctorListViewModel
             {
                 Doctors = doctors.Select(d => new DoctorListItemViewModel
@@ -127,22 +118,18 @@ namespace AnimalHealthcare.Services.Core
         /// </returns>
         public async Task<DoctorDetailsViewModel?> GetDoctorDetailsAsync(int doctorId)
         {
-            // Retrieve the doctor including related clinic and procedures
             var doctor = await _context.Doctors
                 .Include(d => d.AnimalClinic)
                 .Include(d => d.DoctorProcedures)
                     .ThenInclude(dp => dp.Procedure)
                 .FirstOrDefaultAsync(d => d.Id == doctorId && !d.IsDeleted);
 
-            // Return null if doctor not found or marked as deleted
             if (doctor == null) return null;
 
-            // Extract names of all procedures the doctor can perform
             var procedures = doctor.DoctorProcedures
                 .Select(dp => dp.Procedure.Name)
                 .ToList();
 
-            // Build and return the doctor details view model
             return new DoctorDetailsViewModel
             {
                 Name = doctor.Name,
@@ -169,7 +156,6 @@ namespace AnimalHealthcare.Services.Core
         /// </returns>
         public async Task<string?> GetDoctorNameByIdAsync(int doctorId)
         {
-            // Query for the doctor's name only if they are not marked as deleted
             return await _context.Doctors
                 .Where(d => d.Id == doctorId && !d.IsDeleted)
                 .Select(d => d.Name)

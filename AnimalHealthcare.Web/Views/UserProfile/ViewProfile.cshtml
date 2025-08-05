@@ -22,6 +22,7 @@
         @if (string.IsNullOrEmpty(Model.ProfilePictureUrl))
         {
             <form asp-action="AddProfilePicture" method="post" class="mt-2">
+                <input type="hidden" name="profileId" value="@Model.ProfileId" />
                 <div class="mb-2">
                     <input type="url" name="profilePictureUrl" class="form-control" placeholder="Enter image URL" required />
                 </div>
@@ -31,15 +32,28 @@
         else
         {
             <form asp-action="RemoveProfilePicture" method="post" class="mt-2">
+                <input type="hidden" name="profileId" value="@Model.ProfileId" />
                 <button type="submit" class="btn btn-warning">Remove Profile Picture</button>
             </form>
         }
     </div>
     <div class="col-md-9">
-        <p class="text-primary fs-5"><strong>Email:</strong> @Model.Email <a asp-action="EditEmail" class="btn btn-primary">Edit</a></p>
-        <p class="text-primary fs-5"><strong>Full Name:</strong> @Model.FullName <a asp-action="EditFullName" class="btn btn-primary">Edit</a></p>
-        <p class="text-primary fs-5"><strong>Phone Number:</strong> @(Model.PhoneNumber ?? "You have not added a phone number.") <a asp-action="EditPhoneNumber" class="btn btn-primary">Edit</a></p>
-        <p class="text-primary fs-5"><strong>Address:</strong> @(Model.Address ?? "You have not added an address.") <a asp-action="EditAddress" class="btn btn-primary">Edit</a></p>
+        <p class="text-primary fs-5">
+            <strong>Email:</strong> @Model.Email
+            <a asp-action="EditEmail" asp-route-profileId="@Model.ProfileId" class="btn btn-primary">Edit</a>
+        </p>
+        <p class="text-primary fs-5">
+            <strong>Full Name:</strong> @Model.FullName
+            <a asp-action="EditFullName" asp-route-profileId="@Model.ProfileId" class="btn btn-primary">Edit</a>
+        </p>
+        <p class="text-primary fs-5">
+            <strong>Phone Number:</strong> @(Model.PhoneNumber ?? "You have not added a phone number.")
+            <a asp-action="EditPhoneNumber" asp-route-profileId="@Model.ProfileId" class="btn btn-primary">Edit</a>
+        </p>
+        <p class="text-primary fs-5">
+            <strong>Address:</strong> @(Model.Address ?? "You have not added an address.")
+            <a asp-action="EditAddress" asp-route-profileId="@Model.ProfileId" class="btn btn-primary">Edit</a>
+        </p>
     </div>
 </div>
 
@@ -88,5 +102,6 @@ else
 <hr />
 <h4 class="text-danger">Danger Zone</h4>
 <form asp-action="Delete" method="get">
+    <input type="hidden" name="profileId" value="@Model.ProfileId" />
     <button type="submit" class="btn btn-danger">Delete Account</button>
 </form>

@@ -8,6 +8,8 @@ namespace AnimalHealthcare.Web.ViewModels.UserProfile
 
     public class EditPhoneNumberViewModel
     {
+        public string ProfileId { get; set; } = null!;
+
         [StringLength(PhoneNumberMaxLength, MinimumLength = PhoneNumberMinLength, ErrorMessage = StringLength)]
         [Phone(ErrorMessage = ErrorMessages.PhoneNumber)]
         [Display(Name = "Phone Number")]

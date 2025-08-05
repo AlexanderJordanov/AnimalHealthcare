@@ -25,9 +25,7 @@ namespace AnimalHealthcare.Services.Core
         public async Task<List<AnimalSummaryViewModel>> GetAnimalSummariesByOwnerIdAsync(string userId)
         {
             return await _context.Animals
-                // Filter out animals that are soft-deleted and not owned by the user
                 .Where(a => a.UserProfileId == userId && !a.IsDeleted)
-                // Project each animal to a simplified summary view model
                 .Select(a => new AnimalSummaryViewModel
                 {
                     Id = a.Id,
@@ -35,7 +33,7 @@ namespace AnimalHealthcare.Services.Core
                     Breed = a.Breed,
                     Name = a.Name
                 })
-                .ToListAsync(); // Execute the query asynchronously and return the list
+                .ToListAsync();
         }
 
         /// <summary>
@@ -50,7 +48,6 @@ namespace AnimalHealthcare.Services.Core
                 throw new ArgumentException("Pet name and species are required.");
             }
 
-            // Create a new Animal entity using the provided model data
             var animal = new Animal
             {
                 Name = model.Name,
@@ -61,10 +58,8 @@ namespace AnimalHealthcare.Services.Core
                 UserProfileId = userId
             };
 
-            // Add the new animal to the context for tracking
             _context.Animals.Add(animal);
 
-            // Save the changes to the database
             await _context.SaveChangesAsync();
         }
 
@@ -79,20 +74,16 @@ namespace AnimalHealthcare.Services.Core
         /// </returns>
         public async Task<UnregisterPetViewModel?> GetPetUnregisterViewModelByIdAsync(int id, string? requestingUserId = null)
         {
-            // Fetch the animal by ID, ensuring it is not marked as deleted
             var animal = await _context.Animals
                 .Where(a => a.Id == id && !a.IsDeleted)
                 .Include(a => a.UserProfile)
                 .FirstOrDefaultAsync();
 
-            // Return null if no animal is found
             if (animal == null) return null;
 
-            // If a user ID is provided, verify the animal belongs to them
             if (requestingUserId != null && animal.UserProfileId != requestingUserId)
                 return null;
 
-            // Return the view model for confirmation
             return new UnregisterPetViewModel
             {
                 Id = animal.Id,
@@ -149,7 +140,6 @@ namespace AnimalHealthcare.Services.Core
         /// </returns>
         public async Task<AnimalDetailsViewModel?> GetAnimalDetailsViewModelAsync(int animalId, string? requestingUserId = null)
         {
-            // Retrieve the animal and include its owner, appointments, and related doctor/clinic/procedure data
             var animal = await _context.Animals
                 .Include(a => a.UserProfile)
                 .Include(a => a.Appointments)
@@ -159,16 +149,13 @@ namespace AnimalHealthcare.Services.Core
                     .ThenInclude(appt => appt.Procedure)
                 .FirstOrDefaultAsync(a => a.Id == animalId && !a.IsDeleted);
 
-            // Return null if animal is not found
             if (animal == null) return null;
 
-            // If a requesting user is specified, ensure they own this animal
             if (requestingUserId != null && animal.UserProfileId != requestingUserId)
             {
-                return null; // Optionally, throw a ForbiddenException instead
+                return null;
             }
 
-            // Build and return the view model
             return new AnimalDetailsViewModel
             {
                 Id = animal.Id,
@@ -200,17 +187,14 @@ namespace AnimalHealthcare.Services.Core
         /// </returns>
         public async Task<EditPetViewModel?> BuildEditPetViewModelAsync(int id, string requestingUserId)
         {
-            // Retrieve the pet by ID if it's not marked as deleted
             var animal = await _context.Animals
                 .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
 
-            // Return null if the pet doesn't exist or doesn't belong to the requesting user
             if (animal == null || animal.UserProfileId != requestingUserId)
             {
                 return null;
             }
 
-            // Construct and return the view model with the pet's current data
             return new EditPetViewModel
             {
                 Id = animal.Id,
@@ -233,18 +217,15 @@ namespace AnimalHealthcare.Services.Core
         /// </returns>
         public async Task<ServiceOperationResult> UpdateAnimalAsync(EditPetViewModel model, string requestingUserId)
         {
-            // Step 1: Retrieve the animal and ensure it's not deleted
             var animal = await _context.Animals
                 .FirstOrDefaultAsync(a => a.Id == model.Id && !a.IsDeleted);
 
-            // Step 2: Return NotFound or Unauthorized if not accessible
             if (animal == null)
                 return ServiceOperationResult.NotFound;
 
             if (animal.UserProfileId != requestingUserId)
                 return ServiceOperationResult.Unauthorized;
 
-            // Step 3: Return NoChange if nothing was modified
             if (animal.Name.Trim() == model.Name.Trim() &&
                 animal.Age == model.Age &&
                 animal.Species.Trim() == model.Species.Trim() &&
@@ -254,17 +235,14 @@ namespace AnimalHealthcare.Services.Core
                 return ServiceOperationResult.NoChange;
             }
 
-            // Step 4: Apply updates
             animal.Name = model.Name.Trim();
             animal.Age = model.Age;
             animal.Species = model.Species.Trim();
             animal.Breed = model.Breed.Trim();
             animal.Gender = model.Gender;
 
-            // Step 5: Save changes
             await _context.SaveChangesAsync();
             return ServiceOperationResult.Success;
         }
-
     }
 }

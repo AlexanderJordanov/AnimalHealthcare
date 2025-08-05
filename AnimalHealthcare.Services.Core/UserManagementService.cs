@@ -90,7 +90,6 @@ namespace AnimalHealthcare.Services.Core
             if (user == null || profile == null)
                 return false;
 
-            // Soft-delete appointments and animals
             foreach (var animal in profile.Animals)
             {
                 if (animal.Appointments != null && animal.Appointments.Any())
@@ -104,10 +103,8 @@ namespace AnimalHealthcare.Services.Core
                 animal.IsDeleted = true;
             }
 
-            // Remove the user profile
             _context.UserProfiles.Remove(profile);
 
-            // Delete IdentityUser
             var result = await _userManager.DeleteAsync(user);
             if (!result.Succeeded)
                 return false;
@@ -178,7 +175,6 @@ namespace AnimalHealthcare.Services.Core
             if (animal == null)
                 return false;
 
-            // Soft-delete logic
             foreach (var appointment in animal.Appointments)
             {
                 appointment.IsDeleted = true;
@@ -254,6 +250,5 @@ namespace AnimalHealthcare.Services.Core
             await _context.SaveChangesAsync();
             return true;
         }
-
     }
 }

@@ -23,13 +23,13 @@ namespace AnimalHealthcare.Services.Core
         public async Task<IEnumerable<ProcedureListItemViewModel>> GetAllProceduresAsync()
         {
             return await _context.Procedures
-                .Where(p => !p.IsDeleted) // Filter out soft-deleted procedures
+                .Where(p => !p.IsDeleted) 
                 .Select(p => new ProcedureListItemViewModel
                 {
                     Id = p.Id,
                     Name = p.Name
                 })
-                .ToListAsync(); // Execute the query and return results
+                .ToListAsync(); 
         }
 
         /// <summary>
@@ -44,14 +44,14 @@ namespace AnimalHealthcare.Services.Core
         public async Task<ProcedureDetailsViewModel?> GetProcedureDetailsAsync(int procedureId)
         {
             var procedure = await _context.Procedures
-                .Where(p => p.Id == procedureId && !p.IsDeleted) // Filter by ID and exclude deleted
+                .Where(p => p.Id == procedureId && !p.IsDeleted) 
                 .Select(p => new ProcedureDetailsViewModel
                 {
                     Id = p.Id,
                     Name = p.Name,
                     Description = p.Description,
                     Doctors = p.DoctorProcedures
-                        .Where(dp => !dp.Doctor.IsDeleted) // Only include active doctors
+                        .Where(dp => !dp.Doctor.IsDeleted) 
                         .Select(dp => new DoctorForProcedureViewModel
                         {
                             Name = dp.Doctor.Name,
@@ -62,7 +62,7 @@ namespace AnimalHealthcare.Services.Core
                         })
                         .ToList()
                 })
-                .FirstOrDefaultAsync(); // Return null if no match found
+                .FirstOrDefaultAsync(); 
 
             return procedure;
         }
@@ -77,9 +77,9 @@ namespace AnimalHealthcare.Services.Core
         public async Task<string?> GetProcedureNameByIdAsync(int procedureId)
         {
             return await _context.Procedures
-                .Where(p => p.Id == procedureId && !p.IsDeleted) // Only consider non-deleted procedures
+                .Where(p => p.Id == procedureId && !p.IsDeleted) 
                 .Select(p => p.Name)
-                .FirstOrDefaultAsync(); // Return the name or null if not found
+                .FirstOrDefaultAsync(); 
         }
     }
 }
